@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=LogicProbe.X
+PROJECTNAME=LogicProbe_PIC18124.X
 
 # Active Configuration
 DEFAULTCONF=default
