@@ -364,9 +364,9 @@ static void ProcessTestModeTimerEvent(int keyboard_status)
   }
 }
 
-static void ProcessMainModeTimerEvent(int keyboard_status, unsigned int voltage, int current)
+static void ProcessMainModeTimerEvent(int keyboard_status, unsigned int voltage, int next_current)
 {
-  set_current(current);
+  set_current(next_current);
   ProgramItem *current_step = get_current_step();
   ShowSetVoltage(current_step == NULL ? 0 : current_step->voltage);
   ShowSetCurrent(current_step == NULL ? 0 : current_step->max_current);
@@ -415,13 +415,13 @@ static void ProcessMainModeTimerEvent(int keyboard_status, unsigned int voltage,
   }
 }
 
-void Process_Timer_Event(int keyboard_status, unsigned int voltage, int current)
+void Process_Timer_Event(int keyboard_status, unsigned int voltage, int next_current, int fact_current)
 {
   ShowFactVoltage(voltage);
-  ShowFactCurrent(current);
+  ShowFactCurrent(fact_current);
   if (mode == MODE_TEST)
     ProcessTestModeTimerEvent(keyboard_status);
   else
-    ProcessMainModeTimerEvent(keyboard_status, voltage, current);
+    ProcessMainModeTimerEvent(keyboard_status, voltage, next_current);
   LcdUpdate();
 }
