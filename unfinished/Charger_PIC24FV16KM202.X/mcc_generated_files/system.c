@@ -85,22 +85,24 @@
 #include "pin_manager.h"
 #include "clock.h"
 #include "system.h"
-#include "dac1.h"
+#include "ext_int.h"
+#include "tmr1.h"
+#include "adc1.h"
 #include "dac2.h"
+#include "opa2.h"
 #include "interrupt_manager.h"
 #include "traps.h"
-#include "opa2.h"
-#include "ext_int.h"
-#include "adc1.h"
 #include "opa1.h"
-#include "tmr1.h"
+#include "mssp1_i2c.h"
+#include "dac1.h"
 
 void SYSTEM_Initialize(void)
 {
     PIN_MANAGER_Initialize();
-    INTERRUPT_Initialize();
     CLOCK_Initialize();
+    INTERRUPT_Initialize();
     DAC2_Initialize();
+    MSSP1_I2C_Initialize();
     DAC1_Initialize();
     ADC1_Initialize();
     OPA1_Initialize();

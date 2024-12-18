@@ -51,15 +51,16 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "dac1.h"
+#include "ext_int.h"
+#include "tmr1.h"
+#include "adc1.h"
 #include "dac2.h"
+#include "opa2.h"
 #include "interrupt_manager.h"
 #include "traps.h"
-#include "opa2.h"
-#include "ext_int.h"
-#include "adc1.h"
 #include "opa1.h"
-#include "tmr1.h"
+#include "mssp1_i2c.h"
+#include "dac1.h"
 
 #warning "This file will be removed in future MCC releases. Use system.h instead."
 
