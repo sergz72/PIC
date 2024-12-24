@@ -61,7 +61,7 @@ static void DrawValue3(unsigned int x, unsigned int y, const FONT_INFO *font, un
                        unsigned int textColor, unsigned int bkColor, int selectedItem)
 {
   int idx = 0;
-  for (int i = 100; i >= 1; i /= 10)
+  for (unsigned int i = 100; i >= 1; i /= 10)
   {
     DrawValue1(x, y, font, value / i, selectedItem == idx ? bkColor : textColor,
                selectedItem == idx ? textColor : bkColor);
@@ -96,13 +96,13 @@ static void ShowFactCurrent(int current)
 
 static void DrawProgramNumber(unsigned int id, unsigned int textColor, unsigned int bkColor)
 {
-  value_buffer[0] = id + '1';
+  value_buffer[0] = (unsigned char)id + '1';
   value_buffer[1] = 0;
   LcdDrawText(0, HEADER_FONT.char_height * (id + 1), (char*)value_buffer, &HEADER_FONT, textColor,
               bkColor, NULL);
 }
 
-static void DrawProgramStep(ProgramItem *step, int stepNo, int reverseColors)
+static void DrawProgramStep(ProgramItem *step, unsigned int stepNo, int reverseColors)
 {
   unsigned int textColor = reverseColors ? BLACK_COLOR : WHITE_COLOR;
   unsigned int bkColor = reverseColors ? WHITE_COLOR : BLACK_COLOR;
@@ -130,7 +130,7 @@ static void DrawProgramStep(ProgramItem *step, int stepNo, int reverseColors)
 
 static void DrawProgramSteps(ProgramItem *step, int selected)
 {
-  for (int stepNo = 1; stepNo <= MAX_PROGRAM_ITEMS; stepNo++)
+  for (unsigned int stepNo = 1; stepNo <= MAX_PROGRAM_ITEMS; stepNo++)
   {
     DrawProgramStep(step, stepNo, selected == stepNo);
     if (step != NULL)
