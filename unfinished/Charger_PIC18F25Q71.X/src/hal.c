@@ -3,6 +3,10 @@
 #include <xc.h>
 #include "i2c1.h"
 
+#define ADC0_VREF 5000
+#define DAC2_VREF 1024
+#define DAC3_VREF 1700 // 5v - 3.3v
+
 volatile unsigned char delay_counter;
 
 volatile char encoder_counter, exit_counter, keyboard_state;
@@ -66,7 +70,22 @@ unsigned int get_voltage(void)
 void set_current(int mA)
 {
     set_current_value = mA;
-    //todo
+    if (mA == 0)
+    {
+        DAC3DATL = 0xFF;
+        DAC2DATL = 0;
+        return;
+    }
+    if (mA > 0) // charge
+    {
+        DAC2DATL = 0;
+        unsigned long v = (unsigned long)mA * (255UL * MAX_CURRENT / DAC3_VREF);
+        DAC3DATL = 0xFF - (unsigned char)(v / MAX_CURRENT);
+        return;
+    }
+    mA = -mA;
+    DAC3DATL = 0xFF;
+    DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC2_VREF);
 }
 
 static int get_current_hi(void)
@@ -92,7 +111,6 @@ int get_current(void)
 
 char get_keyboard_status(void)
 {
-  //todo
   if (!(BAK_BUTTON_PORT & BAK_BUTTON_PIN_POS))
   {
       exit_counter++;
@@ -132,7 +150,7 @@ char get_keyboard_status(void)
  * RA6
  * RA7 - BAK
  * 
- * RB0
+ * RB0 - LED1
  * RB1 - OPA2OUT
  * RB2 - OPA2IN3-
  * RB3 - ANB3
@@ -146,7 +164,7 @@ char get_keyboard_status(void)
  * RC2
  * RC3 - SCL1
  * RC4 - SDA1
- * RC5 - LED1
+ * RC5 - VREF-(DAC3)
  * RC6 - LED2
  * RC7 - LED3
  * 
@@ -159,17 +177,19 @@ static void InitPorts(void)
     LATC = 0x18;
     
     ODCONC = 0x18;
-    
-    //RC3,RC4,RC5,RC6,RC7 - out
-    TRISC = 0x07;
+
+    // RB0 - out    
+    TRISB = 0xFE;
+    //RC3,RC4,RC6,RC7 - out
+    TRISC = 0x27;
 
     ANSELA = 0x06;
     ANSELB = 0xCE;
-    ANSELC = 0;
+    ANSELC = 0x20;
     
     WPUA = 0x40; // RA6
-    WPUB = 0x31; // RB0, RB4, RB5
-    WPUC = 0;
+    WPUB = 0x30; // RB4, RB5
+    WPUC = 0x07; // RC0, RC1, RC2
 
     // RA5 - TRB
     IOCAN = (1 << TRB_PIN);
@@ -186,29 +206,105 @@ static void InitPorts(void)
     RC4PPS = 0x21;  //RC4->I2C1:SDA1;
 }
 
-static void InitDAC0(void)
+static void InitDAC2(void)
 {
-  //todo
+    DAC2DATL =  0;
+
+    //DACPSS FVR; DACNSS VSS; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
+    DAC2CON =  0x88;
 }
 
-static void InitDAC1(void)
+static void InitDAC3(void)
 {
-  //todo
+    DAC3DATL =  0xFF;
+
+    //DACPSS VDD; DACNSS VREF-; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
+    DAC3CON =  0x81;
 }
 
 static void InitADC(void)
 {
-  //todo
+    ADCLK = (7 << _ADCLK_ADCS_POSITION);        /* ADCS FOSC/16(7) */
+    ADCGA = 4; //RA2
+    ADCGB = 0x0C; // RB2 & RB3
+    ADCGC = 0;
+
+    /****************************************
+    *         Configure Context-1           *
+    ****************************************/
+    ADCTX = 0;
+
+    ADPCH = 2; // Positive channel - RA2
+    ADNCH = 0x3B; // Negative channel - VSS
+    
+    ADACQL = 0;
+    ADACQH = 0;
+    
+    ADCAP = 0; // additional capacitor = 0
+    ADPREL = 0; // pre-charge time
+    ADPREH = 0; // pre-charge time
+
+    ADCON1 = 0;
+    ADCON2 = (0 << _ADCON2_ADMD_POSITION)       /* ADMD Basic_mode(0) */
+                        |(1 << _ADCON2_ADACLR_POSITION) /* ADACLR enabled(1) */
+                        |(1 << _ADCON2_ADCRS_POSITION)  /* ADCRS 0x1(1) */
+                        |(0 << _ADCON2_ADPSIS_POSITION);        /* ADPSIS RES(0) */
+    ADCON3 = (0 << _ADCON3_ADTMD_POSITION)      /* ADTMD disabled(0) */
+                        |(0 << _ADCON3_ADSOI_POSITION)  /* ADSOI ADGO not cleared(0) */
+                        |(1 << _ADCON3_ADCALC_POSITION);        /* ADCALC Actual result vs setpoint(1) */
+    ADSTAT = 0;
+    ADREF = 0; //VREF- = VSS, VREF+ = VDD
+    ADCSEL1 = 0;
+
+    ADCON0 = 0x84;
 }
 
 static void InitOpAmp1(void)
 {
-  //todo
+    //GSEL R1 = 15R and R2 = 1R, R2/R1 = 0.07; RESON Disabled; NSS OPA1IN0-; 
+    OPA1CON1 = 0x0;
+
+    //NCH OPA1IN-; PCH DAC2_OUT; 
+    OPA1CON2 = 0x25;
+
+    //FMS No Connection; INTOE Disabled; PSS OPA1IN0+; 
+    OPA1CON3 = 0x0;
+
+    //PTRES No reset; OFCST Calibration complete; OFCSEL Factory calibrated value in OPAxOFFSET; 
+    OPA1CON4 = 0x0;
+
+    //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
+    OPA1HWC = 0x0;
+
+    //ORS OPAxORPPS; 
+    OPA1ORS = 0x0;
+
+    //EN Enabled; CPON Enabled; UG OPAIN- pin; 
+    OPA1CON0 = 0xA0;
 }
 
 static void InitOpAmp2(void)
 {
-  //todo
+    //GSEL R1 = 15R and R2 = 1R, R2/R1 = 0.07; RESON Disabled; NSS OPA2IN3-; 
+    OPA2CON1 = 0x3;
+
+    //NCH OPA2IN-; PCH DAC3_OUT; 
+    OPA2CON2 = 0x26;
+
+    //FMS No Connection; INTOE Disabled; PSS OPA2IN0+; 
+    OPA2CON3 = 0x0;
+
+    //PTRES No reset; OFCST Calibration complete; OFCSEL Factory calibrated value in OPAxOFFSET; 
+    OPA2CON4 = 0x0;
+
+    //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
+    OPA2HWC = 0x0;
+
+    //ORS OPAxORPPS; 
+    OPA2ORS = 0x0;
+
+    //EN Enabled; CPON Enabled; UG OPAIN- pin; 
+    OPA2CON0 = 0xA0;
 }
 
 static void InitClock(void)
@@ -233,6 +329,12 @@ static void InitTimer0(void)
     T0CON0 = 0x80;
 }
 
+static void InitFVR(void)
+{
+   // ADFVR off; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
+    FVRCON = 0x84;
+}
+
 void SystemInit(void)
 {
     InitClock();
@@ -242,9 +344,10 @@ void SystemInit(void)
     keyboard_state = 0;
     delay_counter = 0;
     
+    InitFVR();
     InitADC();
-    InitDAC0();
-    InitDAC1();
+    InitDAC2();
+    InitDAC3();
     InitOpAmp1();
     InitOpAmp2();
     InitPorts();

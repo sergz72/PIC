@@ -52,7 +52,7 @@
 
 #define _XTAL_FREQ 16000000
 
-#define LED1_TOGGLE LATCbits.LATC5 ^= 1
+#define LED1_TOGGLE LATBbits.LATB0 ^= 1
 #define LED2_ON LATCbits.LATC6 = 1
 #define LED2_OFF LATCbits.LATC6 = 0
 #define LED3_ON LATCbits.LATC7 = 1
