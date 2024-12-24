@@ -3,7 +3,6 @@
 #include <xc.h>
 #include "i2c1.h"
 
-#define ADC0_VREF 5000
 #define DAC2_VREF 1024
 #define DAC3_VREF 1700 // 5v - 3.3v
 
@@ -44,27 +43,29 @@ void load_data(void *p, unsigned int size)
   //todo
 }
 
-/*
- *todo
- */
-
 static unsigned long adc_get(unsigned int ain)
 {
-  //todo
-  return 0;
+    ADPCH = ain;
+
+    ADCON0bits.ADGO = 1;
+
+    while (true == ADCON0bits.ADGO)
+    {
+    }
+
+    return (unsigned long)((ADRESH << 8) + ADRESL);
 }
 
-/*static unsigned int get_mv(unsigned int ain)
+static unsigned int get_mv(unsigned int ain)
 {
-    ref = adc_get(ADC_MUXPOS_INTREF_gc);
+    ref = adc_get(0x3F); // FVR buffer 2 - 1.024v
     unsigned long val = adc_get(ain);
-    return (unsigned int)(ADC0_VREF * val / ref);
-}*/
+    return (unsigned int)(DAC2_VREF * val / ref);
+}
 
 unsigned int get_voltage(void)
 {
-  //todo
-  return 0; //get_mv(ADC_MUXPOS_AIN5_gc);
+  return get_mv(0x0B); // RB3
 }
 
 void set_current(int mA)
@@ -90,14 +91,17 @@ void set_current(int mA)
 
 static int get_current_hi(void)
 {
-  //todo
-  return 0;
+    unsigned int vcc = (unsigned int)((unsigned long)DAC2_VREF * (unsigned long)4095 / ref); // 12 bit ADC
+    unsigned int mv = get_mv(2); // RA2
+    if (mv >= vcc)
+        return 0;
+    return (int)((vcc - mv) << 1); // 0.47 Ohm resistor
 }
 
 static int get_current_lo(void)
 {
-  //todo
-  return 0;
+    unsigned int mv = get_mv(0x0A); // RB2
+    return (int)(mv << 1); // 0.47 Ohm resistor
 }
 
 int get_current(void)
