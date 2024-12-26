@@ -21,11 +21,12 @@
 
 static unsigned char value_buffer[6];
 static int mode;
-static int selected_program_item_no;
-static int selected_program_step_digit;
+static unsigned int selected_program_item_no;
+static unsigned int selected_program_step_digit;
 static ProgramItem *selected_program_item;
 static ProgramItem current_editor_item;
 static int test_current;
+static int selected_offset;
 
 static void DrawValue4(unsigned int x, unsigned int y, const FONT_INFO *font, int value, int show_sign,
                        unsigned int textColor, unsigned int bkColor)
@@ -58,7 +59,7 @@ static void DrawValue1(unsigned int x, unsigned int y, const FONT_INFO *font, un
 }
 
 static void DrawValue3(unsigned int x, unsigned int y, const FONT_INFO *font, unsigned int value,
-                       unsigned int textColor, unsigned int bkColor, int selectedItem)
+                       unsigned int textColor, unsigned int bkColor, unsigned int selectedItem)
 {
   int idx = 0;
   for (unsigned int i = 100; i >= 1; i /= 10)
@@ -76,9 +77,9 @@ static void ShowSetVoltage(unsigned int voltage)
             BLACK_COLOR, WHITE_COLOR);
 }
 
-static void ShowSetCurrent(unsigned int current)
+static void ShowSetCurrent(int current)
 {
-  DrawValue4(GET_X(CURRENT_VOLTAGE_FONT, 10), SET_CURRENT_VOLTAGE_Y, &CURRENT_VOLTAGE_FONT, (int)current,
+  DrawValue4(GET_X(CURRENT_VOLTAGE_FONT, 10), SET_CURRENT_VOLTAGE_Y, &CURRENT_VOLTAGE_FONT, current,
             1, BLACK_COLOR, WHITE_COLOR);
 }
 
@@ -115,11 +116,11 @@ static void DrawProgramStep(ProgramItem *step, unsigned int stepNo, int reverseC
         selected_program_step_digit == 0 ? bkColor : textColor,
                 selected_program_step_digit == 0 ? textColor : bkColor, NULL);
     DrawValue3(GET_X(HEADER_FONT, 3), y, &HEADER_FONT, step->trigger_voltage / 10, textColor, bkColor,
-               selected_program_step_digit < 4 ? selected_program_step_digit - 1 : -1);
+               selected_program_step_digit < 4 ? selected_program_step_digit - 1 : 255);
     DrawValue3(GET_X(HEADER_FONT, 7), y, &HEADER_FONT, step->max_current / 10, textColor, bkColor,
-               selected_program_step_digit < 7 ? selected_program_step_digit - 4 : -1);
+               selected_program_step_digit < 7 ? selected_program_step_digit - 4 : 255);
     DrawValue3(GET_X(HEADER_FONT, 11), y, &HEADER_FONT, step->stop_current / 10, textColor, bkColor,
-               selected_program_step_digit < 10 ? selected_program_step_digit - 7 : -1);
+               selected_program_step_digit < 10 ? selected_program_step_digit - 7 : 255);
     DrawValue3(GET_X(HEADER_FONT, 15), y, &HEADER_FONT, step->voltage / 10, textColor, bkColor,
       selected_program_step_digit - 10);
   }
@@ -128,7 +129,7 @@ static void DrawProgramStep(ProgramItem *step, unsigned int stepNo, int reverseC
                 textColor, bkColor, NULL);
 }
 
-static void DrawProgramSteps(ProgramItem *step, int selected)
+static void DrawProgramSteps(ProgramItem *step, unsigned int selected)
 {
   for (unsigned int stepNo = 1; stepNo <= MAX_PROGRAM_ITEMS; stepNo++)
   {
@@ -144,7 +145,7 @@ static void SelectProgram(unsigned int id)
   set_current_program(id);
   DrawProgramNumber(old_id, WHITE_COLOR, BLACK_COLOR);
   DrawProgramNumber(id, BLACK_COLOR, WHITE_COLOR);
-  DrawProgramSteps(get_program_steps(), -1);
+  DrawProgramSteps(get_program_steps(), 0);
 }
 
 static void SwitchMode(int up)
@@ -152,11 +153,11 @@ static void SwitchMode(int up)
   switch (mode)
   {
     case MODE_NONE:
-      DrawProgramSteps(get_program_steps(), -1);
+      DrawProgramSteps(get_program_steps(), 0);
     break;
     case MODE_SELECT_ITEM:
       selected_program_item_no = 1;
-      selected_program_step_digit = -1;
+      selected_program_step_digit = 255;
       selected_program_item = get_program_steps();
       DrawProgramSteps(selected_program_item, selected_program_item_no);
       break;
@@ -319,25 +320,50 @@ static void InitMainMode(void)
                 BLACK_COLOR, NULL);
     y += HEADER_FONT.char_height;
   }
-  DrawProgramSteps(NULL, -1);
+  DrawProgramSteps(NULL, 0);
   SelectProgram(0);
   DrawMvMa();
   mode = MODE_NONE;
 }
 
+static void DrawOffsetLabels(void)
+{
+  LcdDrawText(0, 0, "OPA1 Offset", &HEADER_FONT,WHITE_COLOR, BLACK_COLOR, NULL);
+  LcdDrawText(0, HEADER_FONT.char_height, "OPA2 Offset", &HEADER_FONT,WHITE_COLOR, BLACK_COLOR, NULL);
+}
+
+static void DrawOffset1(void)
+{
+  unsigned int selected = selected_offset == 1;
+  DrawValue3(GET_X(HEADER_FONT, 13), 0, &HEADER_FONT, get_opamp1_offset(), selected ? BLACK_COLOR : WHITE_COLOR,
+             selected ? WHITE_COLOR : BLACK_COLOR, 255);
+}
+
+static void DrawOffset2(void)
+{
+  unsigned int selected = selected_offset == 2;
+  DrawValue3(GET_X(HEADER_FONT, 13), HEADER_FONT.char_height, &HEADER_FONT, get_opamp2_offset(), selected ? BLACK_COLOR : WHITE_COLOR,
+             selected ? WHITE_COLOR : BLACK_COLOR, 255);
+}
+
 static void InitTestMode(void)
 {
+  selected_offset = 0;
   LcdScreenFill(BLACK_COLOR);
+  DrawOffsetLabels();
+  DrawOffset1();
+  DrawOffset2();
   DrawMvMa();
   ShowSetVoltage(0);
   mode = MODE_TEST;
   test_current = 0;
+  ShowSetCurrent(test_current);
 }
 
 void UI_Init(void)
 {
   selected_program_item = NULL;
-  selected_program_step_digit = -1;
+  selected_program_step_digit = 255;
 
   LcdInit();
   InitMainMode();
@@ -352,15 +378,48 @@ static void ChangeTestCurrent(int value)
 
 static void ProcessTestModeTimerEvent(signed char keyboard_status)
 {
-  ShowSetCurrent(test_current);
-  switch (keyboard_status & 0x0F)
+  if (selected_offset == 0)
   {
-    case KB_EXIT:
-      InitMainMode();
-      break;
-    case KB_ENCODER:
-      ChangeTestCurrent(keyboard_status >> 4);
-    break;
+    switch (keyboard_status & 0x0F) {
+      case KB_EXIT:
+        InitMainMode();
+        break;
+      case KB_SELECT:
+        selected_offset = 1;
+        DrawOffset1();
+        break;
+      case KB_ENCODER:
+        ChangeTestCurrent(keyboard_status >> 4);
+        ShowSetCurrent(test_current);
+        break;
+    }
+  }
+  else
+  {
+    switch (keyboard_status & 0x0F) {
+      case KB_EXIT:
+        selected_offset = 0;
+        DrawOffset1();
+        DrawOffset2();
+        break;
+      case KB_ENCODER:
+        if (selected_offset == 1)
+        {
+          set_opamp1_offset(get_opamp1_offset() + (keyboard_status >> 4));
+          DrawOffset1();
+        }
+        else
+        {
+          set_opamp2_offset(get_opamp2_offset() + (keyboard_status >> 4));
+          DrawOffset2();
+        }
+        break;
+      case KB_SELECT:
+        selected_offset = selected_offset == 1 ? 2 : 1;
+        DrawOffset1();
+        DrawOffset2();
+        break;
+    }
   }
 }
 
@@ -369,7 +428,9 @@ static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int 
   set_current(current);
   ProgramItem *current_step = get_current_step();
   ShowSetVoltage(current_step == NULL ? 0 : current_step->voltage);
-  ShowSetCurrent(current_step == NULL ? 0 : current_step->max_current);
+  ShowSetCurrent(current_step == NULL ? 0 : current_step->mode == MODE_CHARGE
+          ? (int)current_step->max_current
+          : -(int)current_step->max_current);
   if (is_program_running())
   {
     if ((keyboard_status & 0x0F) == KB_EXIT)
@@ -415,13 +476,13 @@ static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int 
   }
 }
 
-void Process_Timer_Event(signed char keyboard_status, unsigned int voltage, int current)
+void Process_Timer_Event(signed char keyboard_status, unsigned int voltage, int next_current, int fact_current)
 {
   ShowFactVoltage(voltage);
-  ShowFactCurrent(current);
+  ShowFactCurrent(fact_current);
   if (mode == MODE_TEST)
     ProcessTestModeTimerEvent(keyboard_status);
   else
-    ProcessMainModeTimerEvent(keyboard_status, voltage, current);
+    ProcessMainModeTimerEvent(keyboard_status, voltage, next_current);
   LcdUpdate();
 }

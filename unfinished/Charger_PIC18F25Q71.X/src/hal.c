@@ -35,15 +35,48 @@ int SSD1306_I2C_Write(int num_bytes, unsigned char control_byte, unsigned char *
 
 void save_data(void *p, unsigned int size)
 {
-  //todo
+    unsigned char *pp = (unsigned char*)p;
+
+    NVMADR = 0x380000;
+    
+    //write and post increment
+    NVMCON1bits.NVMCMD = 0x04;
+
+    di();
+    
+    while (size--)
+    {
+        NVMLOCK = 0x55;
+        NVMLOCK = 0xAA;
+        NVMDATL = *pp++;
+        //Start byte read
+        NVMCON0bits.GO = 1;
+    }
+    
+    ei();
+    
+    NVMCON1bits.NVMCMD = 0;
 }
 
 void load_data(void *p, unsigned int size)
 {
-  //todo
+    unsigned char *pp = (unsigned char*)p;
+    
+    NVMADR = 0x380000;
+    
+    //read and post increment
+    NVMCON1bits.NVMCMD = 0x01;
+
+    while (size--)
+    {
+        //Start byte read
+        NVMCON0bits.GO = 1;
+        
+        *pp++ = NVMDATL;
+    }
 }
 
-static unsigned long adc_get(unsigned int ain)
+static unsigned long adc_get(unsigned char ain)
 {
     ADPCH = ain;
 
@@ -56,7 +89,7 @@ static unsigned long adc_get(unsigned int ain)
     return (unsigned long)((ADRESH << 8) + ADRESL);
 }
 
-static unsigned int get_mv(unsigned int ain)
+static unsigned int get_mv(unsigned char ain)
 {
     ref = adc_get(0x3F); // FVR buffer 2 - 1.024v
     unsigned long val = adc_get(ain);
@@ -113,7 +146,7 @@ int get_current(void)
     return -get_current_lo();
 }
 
-char get_keyboard_status(void)
+signed char get_keyboard_status(void)
 {
   if (!(BAK_BUTTON_PORT & BAK_BUTTON_PIN_POS))
   {
@@ -122,14 +155,14 @@ char get_keyboard_status(void)
   }
   if (exit_counter)
   {
-      char status = exit_counter > 2 ? KB_EXIT_LONG : KB_EXIT;
+      signed char status = exit_counter > 2 ? KB_EXIT_LONG : KB_EXIT;
       exit_counter = 0;
       keyboard_state = 0;
       return status;
   }
   if (keyboard_state)
   {
-      char status = keyboard_state;
+      signed char status = (signed char)keyboard_state;
       keyboard_state = 0;
       return status;
   }
@@ -229,9 +262,6 @@ static void InitDAC3(void)
 static void InitADC(void)
 {
     ADCLK = (7 << _ADCLK_ADCS_POSITION);        /* ADCS FOSC/16(7) */
-    ADCGA = 4; //RA2
-    ADCGB = 0x0C; // RB2 & RB3
-    ADCGC = 0;
 
     /****************************************
     *         Configure Context-1           *
@@ -241,7 +271,7 @@ static void InitADC(void)
     ADPCH = 2; // Positive channel - RA2
     ADNCH = 0x3B; // Negative channel - VSS
     
-    ADACQL = 0;
+    ADACQL = 0xFF;
     ADACQH = 0;
     
     ADCAP = 0; // additional capacitor = 0
@@ -274,8 +304,9 @@ static void InitOpAmp1(void)
     //FMS No Connection; INTOE Disabled; PSS OPA1IN0+; 
     OPA1CON3 = 0x0;
 
-    //PTRES No reset; OFCST Calibration complete; OFCSEL Factory calibrated value in OPAxOFFSET; 
-    OPA1CON4 = 0x0;
+    //PTRES No reset; OFCST Calibration complete; Value written to the OPAxOFFSET register is used as input offset voltage source 
+    OPA1CON4 = 1;
+    OPA1OFFSET = 0x80;
 
     //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
     OPA1HWC = 0x0;
@@ -298,8 +329,9 @@ static void InitOpAmp2(void)
     //FMS No Connection; INTOE Disabled; PSS OPA2IN0+; 
     OPA2CON3 = 0x0;
 
-    //PTRES No reset; OFCST Calibration complete; OFCSEL Factory calibrated value in OPAxOFFSET; 
-    OPA2CON4 = 0x0;
+    //PTRES No reset; OFCST Calibration complete; Value written to the OPAxOFFSET register is used as input offset voltage source 
+    OPA2CON4 = 1;
+    OPA2OFFSET = 0x80;
 
     //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
     OPA2HWC = 0x0;
@@ -337,6 +369,26 @@ static void InitFVR(void)
 {
    // ADFVR off; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
     FVRCON = 0x84;
+}
+
+void set_opamp1_offset(unsigned char offset)
+{
+    OPA1OFFSET = offset;
+}
+
+unsigned char get_opamp1_offset(void)
+{
+    return OPA1OFFSET;
+}
+
+void set_opamp2_offset(unsigned char offset)
+{
+    OPA2OFFSET = offset;
+}
+
+unsigned char get_opamp2_offset(void)
+{
+    return OPA2OFFSET;
 }
 
 void SystemInit(void)
