@@ -71,11 +71,12 @@ signed char get_keyboard_status(void);
 unsigned int get_voltage(void);
 void set_current(int mA);
 int get_current(void);
-int save_data(void *p, unsigned int size);
-void load_data(void *p, unsigned int size);
+int save_data(unsigned char offset, void *p, unsigned int size);
+void load_data(unsigned char offset, void *p, unsigned int size);
 void set_opamp1_offset(unsigned char offset);
 unsigned char get_opamp1_offset(void);
 void set_opamp2_offset(unsigned char offset);
 unsigned char get_opamp2_offset(void);
+int save_offsets(void);
 
 #endif

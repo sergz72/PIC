@@ -13,6 +13,8 @@ typedef struct {
   unsigned int voltage;
 } ProgramItem;
 
+#define PROGRAMS_SIZE (sizeof(ProgramItem) * MAX_PROGRAMS * MAX_PROGRAM_ITEMS)
+
 int update_current(unsigned int voltage);
 void controller_init(void);
 void set_current_program(unsigned int id);

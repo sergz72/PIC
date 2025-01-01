@@ -46,12 +46,12 @@ void controller_init(void)
   current_program = 0;
   current_current = 0;
   pause = 0;
-  load_data(programs, sizeof programs);
+  load_data(0, programs, sizeof programs);
 }
 
 void save_program_data(void)
 {
-  save_data(programs, sizeof programs);
+  save_data(0, programs, sizeof programs);
 }
 
 static int select_program(unsigned int voltage)

@@ -397,6 +397,8 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
   else
   {
     switch (keyboard_status & 0x0F) {
+      case KB_ENTER:
+        save_offsets();
       case KB_EXIT:
         selected_offset = 0;
         DrawOffset1();

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <xc.h>
 #include "i2c1.h"
+#include "controller.h"
 
 #define DAC2_VREF 1024
 #define DAC3_VREF 1700 // 5v - 3.3v
@@ -11,6 +12,7 @@ volatile unsigned char delay_counter;
 volatile char encoder_counter, exit_counter, keyboard_state;
 static unsigned long ref;
 static int set_current_value;
+static unsigned char offsets[2];
 
 void delayms(unsigned int ms)
 {
@@ -33,11 +35,13 @@ int SSD1306_I2C_Write(int num_bytes, unsigned char control_byte, unsigned char *
   return I2C1_ErrorGet();
 }
 
-int save_data(void *p, unsigned int size)
+int save_data(unsigned char offset, void *p, unsigned int size)
 {
     unsigned char *pp = (unsigned char*)p;
 
-    NVMADR = 0x380000;
+    NVMADRU = 0x38;
+    NVMADRH = 0;
+    NVMADRL = offset;
     
     //write and post increment
     NVMCON1bits.NVMCMD = 0x04;
@@ -66,11 +70,13 @@ int save_data(void *p, unsigned int size)
     return 0;
 }
 
-void load_data(void *p, unsigned int size)
+void load_data(unsigned char offset, void *p, unsigned int size)
 {
     unsigned char *pp = (unsigned char*)p;
     
-    NVMADR = 0x380000;
+    NVMADRU = 0x38;
+    NVMADRH = 0;
+    NVMADRL = offset;
     
     //read and post increment
     NVMCON1bits.NVMCMD = 0x01;
@@ -82,6 +88,18 @@ void load_data(void *p, unsigned int size)
         
         *pp++ = NVMDATL;
     }
+}
+
+int save_offsets(void)
+{
+    offsets[0] = OPA1OFFSET;
+    offsets[1] = OPA2OFFSET;
+    return save_data(PROGRAMS_SIZE, offsets, 2);
+}
+
+static void load_offsets(void)
+{
+    load_data(PROGRAMS_SIZE, offsets, 2);
 }
 
 static unsigned long adc_get(unsigned char ain)
@@ -314,7 +332,7 @@ static void InitOpAmp1(void)
 
     //PTRES No reset; OFCST Calibration complete; Value written to the OPAxOFFSET register is used as input offset voltage source 
     OPA1CON4 = 1;
-    OPA1OFFSET = 0x80;
+    OPA1OFFSET = offsets[0];
 
     //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
     OPA1HWC = 0x0;
@@ -339,7 +357,7 @@ static void InitOpAmp2(void)
 
     //PTRES No reset; OFCST Calibration complete; Value written to the OPAxOFFSET register is used as input offset voltage source 
     OPA2CON4 = 1;
-    OPA2OFFSET = 0x80;
+    OPA2OFFSET = offsets[1];
 
     //OREN Disabled; HWCH Basic OPA configuration with user defined feedback; ORPOL Non Inverted; HWCL Basic OPA configuration with user defined feedback; 
     OPA2HWC = 0x0;
@@ -412,6 +430,7 @@ void SystemInit(void)
     InitADC();
     InitDAC2();
     InitDAC3();
+    load_offsets();
     InitOpAmp1();
     InitOpAmp2();
     InitPorts();
