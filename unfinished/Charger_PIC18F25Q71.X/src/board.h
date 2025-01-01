@@ -40,13 +40,14 @@
 
 #define BAK_BUTTON_PORT PORTA
 #define BAK_BUTTON_PIN 7
-#define PSH_BUTTON_PORT PORTA
-#define PSH_BUTTON_PIN 3
-#define CON_BUTTON_PORT PORTA
-#define CON_BUTTON_PIN 0
-#define TRA_PORT PORTA
-#define TRA_PIN 4
-#define TRB_PIN 5
+#define PSH_BUTTON_PORT PORTC
+#define PSH_BUTTON_PIN 1
+#define CON_BUTTON_PORT PORTC
+#define CON_BUTTON_PIN 2
+#define TRA_PORT PORTC
+#define TRA_PIN 0
+#define TRB_PORT PORTA
+#define TRB_PIN 6
 
 #define BAK_BUTTON_PIN_POS (1<<BAK_BUTTON_PIN)
 
@@ -57,6 +58,8 @@
 #define LED2_OFF LATCbits.LATC6 = 0
 #define LED3_ON LATCbits.LATC7 = 1
 #define LED3_OFF LATCbits.LATC7 = 0
+#define LED4_ON LATBbits.LATB4 = 1
+#define LED4_OFF LATBbits.LATB4 = 0
 
 #define TIMER0_INTERRUPT_MS 16
 
@@ -68,7 +71,7 @@ signed char get_keyboard_status(void);
 unsigned int get_voltage(void);
 void set_current(int mA);
 int get_current(void);
-void save_data(void *p, unsigned int size);
+int save_data(void *p, unsigned int size);
 void load_data(void *p, unsigned int size);
 void set_opamp1_offset(unsigned char offset);
 unsigned char get_opamp1_offset(void);

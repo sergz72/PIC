@@ -33,7 +33,7 @@ int SSD1306_I2C_Write(int num_bytes, unsigned char control_byte, unsigned char *
   return I2C1_ErrorGet();
 }
 
-void save_data(void *p, unsigned int size)
+int save_data(void *p, unsigned int size)
 {
     unsigned char *pp = (unsigned char*)p;
 
@@ -46,16 +46,24 @@ void save_data(void *p, unsigned int size)
     
     while (size--)
     {
+        NVMDATL = *pp++;
         NVMLOCK = 0x55;
         NVMLOCK = 0xAA;
-        NVMDATL = *pp++;
         //Start byte read
         NVMCON0bits.GO = 1;
+        while (NVMCON0bits.GO)
+            ;
+        if (NVMCON1bits.WRERR)
+        {
+            ei();
+            NVMCON1bits.NVMCMD = 0;
+            return 1;
+        }
     }
     
     ei();
-    
     NVMCON1bits.NVMCMD = 0;
+    return 0;
 }
 
 void load_data(void *p, unsigned int size)
@@ -178,27 +186,27 @@ signed char get_keyboard_status(void)
 }
 
 /*
- * RA0 - CON
+ * RA0
  * RA1 - OPA1OUT
  * RA2 - OPA1IN0-
- * RA3 - PSH
- * RA4 - TRA
- * RA5 - TRB
- * RA6
+ * RA3
+ * RA4
+ * RA5
+ * RA6 - TRB
  * RA7 - BAK
  * 
  * RB0 - LED1
  * RB1 - OPA2OUT
  * RB2 - OPA2IN3-
  * RB3 - ANB3
- * RB4
+ * RB4 - LED4
  * RB5
  * RB6 - ICSPCLK
  * RB7 - ICSPDAT
  * 
- * RC0
- * RC1
- * RC2
+ * RC0 - TRA
+ * RC1 - PSH
+ * RC2 - CON
  * RC3 - SCL1
  * RC4 - SDA1
  * RC5 - VREF-(DAC3)
@@ -215,8 +223,8 @@ static void InitPorts(void)
     
     ODCONC = 0x18;
 
-    // RB0 - out    
-    TRISB = 0xFE;
+    // RB0, RB4 - out    
+    TRISB = 0xEE;
     //RC3,RC4,RC6,RC7 - out
     TRISC = 0x27;
 
@@ -224,11 +232,11 @@ static void InitPorts(void)
     ANSELB = 0xCE;
     ANSELC = 0x20;
     
-    WPUA = 0x40; // RA6
-    WPUB = 0x30; // RB4, RB5
-    WPUC = 0x07; // RC0, RC1, RC2
+    WPUA = 0x39; // RA0, RA3, RA4, RA5
+    WPUB = 0x20; // RB5
+    WPUC = 0;
 
-    // RA5 - TRB
+    // RA6 - TRB
     IOCAN = (1 << TRB_PIN);
 
     // Enable PIE0bits.IOCIE interrupt 

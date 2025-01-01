@@ -12,7 +12,7 @@ extern volatile char keyboard_state;
 static void PIN_MANAGER_IOC(void)
 {
     // TRB pin
-    if(IOCAFbits.IOCAF5 == 1)
+    if(IOCAFbits.IOCAF6 == 1)
     {
         if (TRA_PORT & TRA_PIN_POS)
             encoder_counter--;
