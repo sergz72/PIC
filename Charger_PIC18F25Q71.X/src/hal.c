@@ -4,6 +4,7 @@
 #include "i2c1.h"
 #include "controller.h"
 
+#define FVR1_VALUE  4096
 #define FVR2_VALUE  1024
 #define DAC_LO_VREF 1024
 #define DAC_HI_VREF 1700 // 5v - 3.3v
@@ -120,9 +121,9 @@ static unsigned long adc_get(unsigned char ain)
 
 static unsigned int get_mv(unsigned char ain)
 {
-    ref = adc_get(0x3F); // FVR buffer 2 - 1.024v
+    ref = adc_get(0x3E); // FVR buffer 1 - 4.096v
     unsigned long val = adc_get(ain);
-    return (unsigned int)(FVR2_VALUE * val / ref);
+    return (unsigned int)((unsigned long)FVR1_VALUE * val / ref);
 }
 
 unsigned int get_voltage(void)
@@ -158,7 +159,7 @@ void set_current(int mA)
 
 static int get_current_hi(void)
 {
-    unsigned long vcc = (unsigned long)FVR2_VALUE * (unsigned long)4095 / ref; // 12 bit ADC
+    unsigned long vcc = (unsigned long)FVR1_VALUE * (unsigned long)4095 / ref; // 12 bit ADC
     int mA = (int)((4095UL - adc_get(2)) * vcc / (4096 / 2)); // RA2, 0.47 Ohm resistor
     return mA; // 0.47 Ohm resistor
 }
@@ -403,8 +404,8 @@ static void InitTimer0(void)
 
 static void InitFVR(void)
 {
-   // ADFVR off; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
-    FVRCON = 0x84;
+   // ADFVR 4.096v; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
+    FVRCON = 0x87;
 }
 
 void set_opamp1_offset(unsigned char offset)
