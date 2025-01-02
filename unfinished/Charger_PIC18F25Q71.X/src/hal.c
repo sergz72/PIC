@@ -4,8 +4,11 @@
 #include "i2c1.h"
 #include "controller.h"
 
-#define DAC2_VREF 1024
-#define DAC3_VREF 1700 // 5v - 3.3v
+#define FVR2_VALUE  1024
+#define DAC_LO_VREF 1024
+#define DAC_HI_VREF 1700 // 5v - 3.3v
+//#define DAC_HI_VREF 5000
+#define DAC_HI_MAX  0xFF
 
 volatile unsigned char delay_counter;
 
@@ -119,7 +122,7 @@ static unsigned int get_mv(unsigned char ain)
 {
     ref = adc_get(0x3F); // FVR buffer 2 - 1.024v
     unsigned long val = adc_get(ain);
-    return (unsigned int)(DAC2_VREF * val / ref);
+    return (unsigned int)(FVR2_VALUE * val / ref);
 }
 
 unsigned int get_voltage(void)
@@ -127,34 +130,37 @@ unsigned int get_voltage(void)
   return get_mv(0x0B); // RB3
 }
 
+static void set_dac_hi(unsigned int value)
+{
+    DAC3DATL = value & 0xFF;
+}
+
 void set_current(int mA)
 {
     set_current_value = mA;
     if (mA == 0)
     {
-        DAC3DATL = 0xFF;
+        set_dac_hi(DAC_HI_MAX);
         DAC2DATL = 0;
         return;
     }
     if (mA > 0) // charge
     {
         DAC2DATL = 0;
-        unsigned long v = (unsigned long)mA * (255UL * MAX_CURRENT / DAC3_VREF);
-        DAC3DATL = 0xFF - (unsigned char)(v / MAX_CURRENT);
+        unsigned long v = (unsigned long)mA * (unsigned long)DAC_HI_MAX / (2 * DAC_HI_VREF); // 0.47 Ohm resistor
+        set_dac_hi(DAC_HI_MAX - (unsigned int)v);
         return;
     }
     mA = -mA;
-    DAC3DATL = 0xFF;
-    DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC2_VREF);
+    set_dac_hi(DAC_HI_MAX);
+    DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_LO_VREF); // 0.47 Ohm resistor
 }
 
 static int get_current_hi(void)
 {
-    unsigned int vcc = (unsigned int)((unsigned long)DAC2_VREF * (unsigned long)4095 / ref); // 12 bit ADC
-    unsigned int mv = get_mv(2); // RA2
-    if (mv >= vcc)
-        return 0;
-    return (int)((vcc - mv) << 1); // 0.47 Ohm resistor
+    unsigned long vcc = (unsigned long)FVR2_VALUE * (unsigned long)4095 / ref; // 12 bit ADC
+    int mA = (int)((4095UL - adc_get(2)) * vcc / (4096 / 2)); // RA2, 0.47 Ohm resistor
+    return mA; // 0.47 Ohm resistor
 }
 
 static int get_current_lo(void)
@@ -283,11 +289,13 @@ static void InitDAC3(void)
 
     //DACPSS VDD; DACNSS VREF-; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
     DAC3CON =  0x81;
+    //DACPSS VDD; DACNSS VSS; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
+    //DAC3CON =  0x80;
 }
 
 static void InitADC(void)
 {
-    ADCLK = (7 << _ADCLK_ADCS_POSITION);        /* ADCS FOSC/16(7) */
+    ADCLK = (0x1F << _ADCLK_ADCS_POSITION);        /* ADCS FOSC/16(7) */
 
     /****************************************
     *         Configure Context-1           *
@@ -305,9 +313,9 @@ static void InitADC(void)
     ADPREH = 0; // pre-charge time
 
     ADCON1 = 0;
-    ADCON2 = (0 << _ADCON2_ADMD_POSITION)       /* ADMD Basic_mode(0) */
+    ADCON2 = (3 << _ADCON2_ADMD_POSITION)       /* ADMD Burst average_mode(0) */
                         |(1 << _ADCON2_ADACLR_POSITION) /* ADACLR enabled(1) */
-                        |(1 << _ADCON2_ADCRS_POSITION)  /* ADCRS 0x1(1) */
+                        |(6 << _ADCON2_ADCRS_POSITION)  /* ADCRS 0x6(6) */
                         |(0 << _ADCON2_ADPSIS_POSITION);        /* ADPSIS RES(0) */
     ADCON3 = (0 << _ADCON3_ADTMD_POSITION)      /* ADTMD disabled(0) */
                         |(0 << _ADCON3_ADSOI_POSITION)  /* ADSOI ADGO not cleared(0) */
@@ -316,6 +324,8 @@ static void InitADC(void)
     ADREF = 0; //VREF- = VSS, VREF+ = VDD
     ADCSEL1 = 0;
 
+    ADRPT = 64;
+    
     ADCON0 = 0x84;
 }
 
@@ -324,8 +334,8 @@ static void InitOpAmp1(void)
     //GSEL R1 = 15R and R2 = 1R, R2/R1 = 0.07; RESON Disabled; NSS OPA1IN0-; 
     OPA1CON1 = 0x0;
 
-    //NCH OPA1IN-; PCH DAC2_OUT; 
-    OPA1CON2 = 0x25;
+    //NCH OPA1IN-; PCH DAC3_OUT; 
+    OPA1CON2 = 0x26;
 
     //FMS No Connection; INTOE Disabled; PSS OPA1IN0+; 
     OPA1CON3 = 0x0;
@@ -349,8 +359,8 @@ static void InitOpAmp2(void)
     //GSEL R1 = 15R and R2 = 1R, R2/R1 = 0.07; RESON Disabled; NSS OPA2IN3-; 
     OPA2CON1 = 0x3;
 
-    //NCH OPA2IN-; PCH DAC3_OUT; 
-    OPA2CON2 = 0x26;
+    //NCH OPA2IN-; PCH DAC2_OUT; 
+    OPA2CON2 = 0x25;
 
     //FMS No Connection; INTOE Disabled; PSS OPA2IN0+; 
     OPA2CON3 = 0x0;
