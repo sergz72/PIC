@@ -243,7 +243,7 @@ static void UpdateValue(int counter)
       current_editor_item.stop_current = GetNewValue(current_editor_item.stop_current, counter, 100, MAX_CURRENT);
       break;
     case 9: // tens of stop current
-      current_editor_item.stop_current = GetNewValue(current_editor_item.stop_current, counter, 100, MAX_CURRENT);
+      current_editor_item.stop_current = GetNewValue(current_editor_item.stop_current, counter, 10, MAX_CURRENT);
       break;
     case 10: // thousands of voltage
       current_editor_item.voltage = GetNewValue(current_editor_item.voltage, counter, 1000, MAX_VOLTAGE);
