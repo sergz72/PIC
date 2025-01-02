@@ -79,8 +79,14 @@ static void ShowSetVoltage(unsigned int voltage)
 
 static void ShowSetCurrent(int current)
 {
-  DrawValue4(GET_X(CURRENT_VOLTAGE_FONT, 10), SET_CURRENT_VOLTAGE_Y, &CURRENT_VOLTAGE_FONT, current,
+  DrawValue4(GET_X(CURRENT_VOLTAGE_FONT, 11), SET_CURRENT_VOLTAGE_Y, &CURRENT_VOLTAGE_FONT, current,
             1, BLACK_COLOR, WHITE_COLOR);
+}
+
+static void ShowStepCurrent(int current)
+{
+  DrawValue4(GET_X(CURRENT_VOLTAGE_FONT, 7), SET_CURRENT_VOLTAGE_Y, &CURRENT_VOLTAGE_FONT, current,
+             0, BLACK_COLOR, WHITE_COLOR);
 }
 
 static void ShowFactVoltage(unsigned int voltage)
@@ -430,9 +436,10 @@ static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int 
   set_current(current);
   ProgramItem *current_step = get_current_step();
   ShowSetVoltage(current_step == NULL ? 0 : current_step->voltage);
-  ShowSetCurrent(current_step == NULL ? 0 : current_step->mode == MODE_CHARGE
-          ? (int)current_step->max_current
-          : -(int)current_step->max_current);
+  ShowStepCurrent(current_step == NULL ? 0 : current_step->mode == MODE_CHARGE
+                                            ? (int)current_step->max_current
+                                            : -(int)current_step->max_current);
+  ShowSetCurrent(current);
   if (is_program_running())
   {
     if ((keyboard_status & 0x0F) == KB_EXIT)

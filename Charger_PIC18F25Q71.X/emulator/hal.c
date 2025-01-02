@@ -59,24 +59,33 @@ int get_current(void)
   return 0;
 }
 
-void save_data(void *p, unsigned int size)
+int save_data(unsigned char offset, void *p, unsigned int size)
 {
   auto f = fopen("data.bin", "wb");
   if (f != NULL)
   {
+    fseek(f, offset, SEEK_SET);
     fwrite(p, size, 1, f);
     fclose(f);
+    return 0;
   }
+  return 1;
 }
 
-void load_data(void *p, unsigned int size)
+void load_data(unsigned char offset, void *p, unsigned int size)
 {
   auto f = fopen("data.bin", "rb");
   if (f != NULL)
   {
+    fseek(f, offset, SEEK_SET);
     fread(p, size, 1, f);
     fclose(f);
   }
+}
+
+int save_offsets(void)
+{
+  return 0;
 }
 
 int get_lcd_buffer_bit(int x, int y)
