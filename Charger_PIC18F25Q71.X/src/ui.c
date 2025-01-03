@@ -392,6 +392,8 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
         break;
       case KB_SELECT:
         selected_offset = 1;
+        disable_opamp2();
+        enable_opamp1();
         DrawOffset1();
         break;
       case KB_ENCODER:
@@ -407,6 +409,8 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
         save_offsets();
       case KB_EXIT:
         selected_offset = 0;
+        disable_opamp1();
+        disable_opamp2();
         DrawOffset1();
         DrawOffset2();
         break;
@@ -424,6 +428,16 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
         break;
       case KB_SELECT:
         selected_offset = selected_offset == 1 ? 2 : 1;
+        if (selected_offset == 1)
+        {
+            disable_opamp2();
+            enable_opamp1();
+        }
+        else
+        {
+            disable_opamp1();
+            enable_opamp2();
+        }
         DrawOffset1();
         DrawOffset2();
         break;

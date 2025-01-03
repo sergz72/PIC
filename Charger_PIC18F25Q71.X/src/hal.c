@@ -141,20 +141,32 @@ void set_current(int mA)
     set_current_value = mA;
     if (mA == 0)
     {
+        LED2_OFF;
+        LED3_OFF;
+        disable_opamp1();
+        disable_opamp2();
         set_dac_hi(DAC_HI_MAX);
         DAC2DATL = 0;
         return;
     }
     if (mA > 0) // charge
     {
+        LED2_ON;
+        LED3_OFF;
+        disable_opamp2();
         DAC2DATL = 0;
         unsigned long v = (unsigned long)mA * (unsigned long)DAC_HI_MAX / (2 * DAC_HI_VREF); // 0.47 Ohm resistor
         set_dac_hi(DAC_HI_MAX - (unsigned int)v);
+        enable_opamp1();
         return;
     }
+    LED2_OFF;
+    LED3_ON;
+    disable_opamp1();
     mA = -mA;
     set_dac_hi(DAC_HI_MAX);
     DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_LO_VREF); // 0.47 Ohm resistor
+    enable_opamp2();
 }
 
 static int get_current_hi(void)
@@ -350,9 +362,6 @@ static void InitOpAmp1(void)
 
     //ORS OPAxORPPS; 
     OPA1ORS = 0x0;
-
-    //EN Enabled; CPON Enabled; UG OPAIN- pin; 
-    OPA1CON0 = 0xA0;
 }
 
 static void InitOpAmp2(void)
@@ -375,10 +384,30 @@ static void InitOpAmp2(void)
 
     //ORS OPAxORPPS; 
     OPA2ORS = 0x0;
+}
 
+void enable_opamp1(void)
+{
+    //EN Enabled; CPON Enabled; UG OPAIN- pin; 
+    OPA1CON0 = 0xA0;
+}
+
+void disable_opamp1(void)
+{
+    OPA1CON0 = 0;
+}
+
+void enable_opamp2(void)
+{
     //EN Enabled; CPON Enabled; UG OPAIN- pin; 
     OPA2CON0 = 0xA0;
 }
+
+void disable_opamp2(void)
+{
+    OPA2CON0 = 0;
+}
+
 
 static void InitClock(void)
 {
