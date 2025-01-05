@@ -28,22 +28,31 @@
 #define MAX_CURRENT 2000
 #define MAX_VOLTAGE 5000
 
-#define RTC_INT_MS 50
-
+#define T1_INTERRUPT_MS 16
 #define TIMER_DELAY 250
 
-#define CLK_PER 10000
-#define F_SCL 400
-
-#define LED_PORT PORTB
-#define LED_PIN 2
-
-#define BAK_BUTTON_PORT PORTB
-#define BAK_BUTTON_PIN 2
+#define BAK_BUTTON_PORT PORTA
+#define BAK_BUTTON_PIN 4
 #define PSH_BUTTON_PORT PORTA
-#define PSH_BUTTON_PIN 1
-#define TRA_PIN 2
-#define TRB_PIN 3
+#define PSH_BUTTON_PIN 2
+#define CON_BUTTON_PORT PORTA
+#define CON_BUTTON_PIN 1
+#define TRA_PORT PORTA
+#define TRA_PIN 3
+#define TRB_CNEN CNEN1
+#define TRB_CNEN_VALUE 0x2000
+
+#define BAK_BUTTON_PIN_POS (1<<BAK_BUTTON_PIN)
+
+#define LED1_TOGGLE LATBbits.LATB13 ^= 1
+#define LED2_ON LATBbits.LATB12 = 1
+#define LED2_OFF LATBbits.LATB12 = 0
+#define LED3_ON LATBbits.LATB11 = 1
+#define LED3_OFF LATBbits.LATB11 = 0
+#define LED4_ON LATBbits.LATB10 = 1
+#define LED4_OFF LATBbits.LATB10 = 0
+
+extern volatile unsigned int delay_counter;
 
 void delayms(unsigned int ms);
 void SystemInit(void);
@@ -51,7 +60,16 @@ int get_keyboard_status(void);
 unsigned int get_voltage(void);
 void set_current(int mA);
 int get_current(void);
-void save_data(void *p, unsigned int size);
-void load_data(void *p, unsigned int size);
+int save_data(unsigned char offset, void *p, unsigned int size);
+void load_data(unsigned char offset, void *p, unsigned int size);
+void set_opamp1_offset(unsigned char offset);
+unsigned char get_opamp1_offset(void);
+void set_opamp2_offset(unsigned char offset);
+unsigned char get_opamp2_offset(void);
+int save_offsets(void);
+void enable_opamp1(void);
+void disable_opamp1(void);
+void enable_opamp2(void);
+void disable_opamp2(void);
 
 #endif
