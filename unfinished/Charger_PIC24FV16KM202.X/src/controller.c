@@ -28,12 +28,13 @@ ProgramItem *get_current_step(void)
 
 int is_program_step_valid(ProgramItem *step)
 {
-  return step != NULL && (step->mode == MODE_CHARGE || step->mode == MODE_DISCHARGE || step->mode == MODE_DELETE);
+  return step != NULL && (step->mode == MODE_CHARGE || step->mode == MODE_DISCHARGE_CC ||
+         step->mode == MODE_DISCHARGE_CV || step->mode == MODE_DELETE);
 }
 
 void create_program_item(ProgramItem *step)
 {
-  step->mode = MODE_DISCHARGE;
+  step->mode = MODE_DISCHARGE_CC;
   step->voltage = 4200;
   step->max_current = MAX_CURRENT;
   step->stop_current = 50;
@@ -59,15 +60,17 @@ static int select_program(unsigned int voltage)
   while (current_program_step - programs[current_program] < MAX_PROGRAM_ITEMS - 1 &&
          is_program_step_valid(current_program_step))
   {
-    if (current_program_step->mode == MODE_CHARGE)
+    switch (current_program_step->mode)
     {
-      if (voltage <= current_program_step->trigger_voltage)
-        return 1;
-    }
-    else
-    {
-      if (voltage >= current_program_step->trigger_voltage)
-        return 1;
+      case MODE_CHARGE:
+        if (voltage <= current_program_step->trigger_voltage)
+          return 1;
+        break;
+      case MODE_DISCHARGE_CC:
+      case MODE_DISCHARGE_CV:
+        if (voltage >= current_program_step->trigger_voltage)
+          return 1;
+        break;
     }
     current_program_step++;
   }
@@ -108,7 +111,18 @@ static void update_charge_current(unsigned int voltage)
   }
 }
 
-static void update_discharge_current(unsigned int voltage)
+static void update_discharge_cc_current(unsigned int voltage)
+{
+  if (voltage > current_program_step->voltage)
+  {
+    if (current_current <= (int)current_program_step->max_current - 10)
+      current_current += 10;
+  }
+  else
+      next_program_step(voltage);
+}
+
+static void update_discharge_cv_current(unsigned int voltage)
 {
   if (voltage > current_program_step->voltage)
   {
@@ -116,7 +130,12 @@ static void update_discharge_current(unsigned int voltage)
       current_current += 10;
   }
   else if (voltage < current_program_step->voltage)
+  {
+    if (current_current >= 10 && current_current >= current_program_step->stop_current)
+      current_current -= 10;
+    else
       next_program_step(voltage);
+  }
 }
 
 int update_current(unsigned int voltage)
@@ -133,7 +152,10 @@ int update_current(unsigned int voltage)
     update_charge_current(voltage);
     return current_current;
   }
-  update_discharge_current(voltage);
+  if (current_program_step->mode == MODE_DISCHARGE_CC)
+    update_discharge_cc_current(voltage);
+  else
+    update_discharge_cv_current(voltage);
   return -current_current;
 }
 

@@ -114,3 +114,23 @@ unsigned char get_opamp2_offset(void)
 {
   return OPA2OFFSET;
 }
+
+void enable_opamp1(void)
+{
+
+}
+
+void disable_opamp1(void)
+{
+
+}
+
+void enable_opamp2(void)
+{
+
+}
+
+void disable_opamp2(void)
+{
+
+}

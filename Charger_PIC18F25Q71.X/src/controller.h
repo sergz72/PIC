@@ -2,7 +2,8 @@
 #define _CONTROLLER_H
 
 #define MODE_CHARGE 0x55
-#define MODE_DISCHARGE 0xAA
+#define MODE_DISCHARGE_CC 0xAA
+#define MODE_DISCHARGE_CV 0x5A
 #define MODE_DELETE 0x11
 
 typedef struct {

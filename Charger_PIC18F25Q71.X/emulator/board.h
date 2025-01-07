@@ -43,5 +43,9 @@ unsigned char get_opamp1_offset(void);
 void set_opamp2_offset(unsigned char offset);
 unsigned char get_opamp2_offset(void);
 int save_offsets(void);
+void enable_opamp1(void);
+void disable_opamp1(void);
+void enable_opamp2(void);
+void disable_opamp2(void);
 
 #endif

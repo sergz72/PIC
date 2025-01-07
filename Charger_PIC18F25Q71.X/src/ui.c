@@ -109,13 +109,24 @@ static void DrawProgramNumber(unsigned int id, unsigned int textColor, unsigned 
               bkColor, NULL);
 }
 
+static unsigned char GetModeName(int mode)
+{
+  switch (mode)
+  {
+    case MODE_CHARGE: return 'C';
+    case MODE_DISCHARGE_CC: return 'D';
+    case MODE_DISCHARGE_CV: return 'V';
+    default: return 'X';
+  }
+}
+
 static void DrawProgramStep(ProgramItem *step, unsigned int stepNo, int reverseColors)
 {
   unsigned int textColor = reverseColors ? BLACK_COLOR : WHITE_COLOR;
   unsigned int bkColor = reverseColors ? WHITE_COLOR : BLACK_COLOR;
   if (is_program_step_valid(step))
   {
-    value_buffer[0] = step->mode == MODE_CHARGE ? 'C' : step->mode == MODE_DISCHARGE ? 'D' : 'X';
+    value_buffer[0] = GetModeName(step->mode);
     value_buffer[1] = 0;
     unsigned int y = HEADER_FONT.char_height * stepNo;
     LcdDrawText(GET_X(HEADER_FONT, 1), y, (char*)value_buffer, &HEADER_FONT,
@@ -215,14 +226,23 @@ static unsigned int GetNewValue(unsigned int v, int counter, int diff, unsigned 
   return 0;
 }
 
+static int GetNextMode()
+{
+  switch (current_editor_item.mode)
+  {
+    case MODE_CHARGE: return MODE_DISCHARGE_CC;
+    case MODE_DISCHARGE_CC: return MODE_DISCHARGE_CV;
+    case MODE_DISCHARGE_CV: return MODE_DELETE;
+    default: return MODE_CHARGE;
+  }
+}
+
 static void UpdateValue(int counter)
 {
   switch (selected_program_step_digit)
   {
     case 0: // mode
-      current_editor_item.mode =
-        current_editor_item.mode == MODE_CHARGE ? MODE_DISCHARGE :
-          (current_editor_item.mode == MODE_DISCHARGE ? MODE_DELETE : MODE_CHARGE);
+      current_editor_item.mode = GetNextMode();
       break;
     case 1: // thousands of trigger voltage
       current_editor_item.trigger_voltage = GetNewValue(current_editor_item.trigger_voltage, counter, 1000, MAX_VOLTAGE);
