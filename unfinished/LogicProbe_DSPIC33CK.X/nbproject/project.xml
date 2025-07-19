@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>com.microchip.mplab.nbide.embedded.makeproject</type>
+    <configuration>
+        <data xmlns="http://www.netbeans.org/ns/make-project/1">
+            <name>LogicProbe_DSPIC33CK</name>
+            <creation-uuid>c3f3c7aa-e4ca-497f-8f87-f5513fccee8e</creation-uuid>
+            <make-project-type>0</make-project-type>
+            <sourceEncoding>ISO-8859-1</sourceEncoding>
+            <make-dep-projects/>
+            <sourceRootList>
+                <sourceRootElem>src</sourceRootElem>
+                <sourceRootElem>../../ARM_CLION/logic_probe_core</sourceRootElem>
+                <sourceRootElem>../../ARM_CLION/common_lib</sourceRootElem>
+            </sourceRootList>
+            <confList>
+                <confElem>
+                    <name>202_Debug</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>508_Debug</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
+            <formatting>
+                <project-formatting-style>false</project-formatting-style>
+            </formatting>
+        </data>
+    </configuration>
+</project>
