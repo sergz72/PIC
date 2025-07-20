@@ -1,4 +1,5 @@
 #include "board.h"
+#include <string.h>
 
 typedef enum
 {
@@ -114,12 +115,12 @@ static void InitPorts (void)
    * Setting the GPIO Direction SFR(s)
    ***************************************************************************/
 #ifdef __dsPIC33CK256MP508__
-  // RB9 - OUT
-  TRISB = 0xFDFF;
+  // RB9, RB14 - OUT
+  TRISB = 0xBDFF;
   // RD4 - OUT
   TRISD = 0xFFEF;
-  // RE6, RE5 - OUT
-  TRISE = 0xFF9F;
+  // RE5, RE6, RE13, RE14, RE15 - OUT
+  TRISE = 0x1F9F;
 #endif
 #ifdef __dsPIC33CK256MP202__
 #error Not ready yet
@@ -140,14 +141,53 @@ static void InitPorts (void)
   __builtin_write_RPCON(0x0800); // lock PPS
 }
 
+static void InitDACs (void)
+{
+  // DAC clock is FVCO/2
+  // comparator filter clock divider = 1
+  DACCTRL1L = 0x0040;
+  // SSTIME: 550ns, 2 ns clock
+  DACCTRL2H = 275; //SSTIME 275; 
+  // TMODTIME=340ns
+  DACCTRL2L = 170; //TMODTIME 170; 
+
+  DACCTRL1Lbits.DACON = 1;
+}
+
 static void InitDAC1 (void)
 {
-  //todo
+  DAC1CONH = 0x0; //TMCB 0; 
+  // DAC1 Enabled
+  // DAC output is not connected to DACOUT1
+  // Comparator output is not inverted
+  // Comparator input source = CMP1D
+  // 45mv hysteresis
+  DAC1CONL = 0x801B;
+
+  set_h_voltage(DEFAULT_DACH_VOLTAGE);
 }
 
 static void InitDAC2 (void)
 {
-  //todo
+  DAC2CONH = 0x0; //TMCB 0; 
+  // DAC2 Enabled
+  // DAC output is not connected to DACOUT1
+  // Comparator output is inverted
+  // Comparator input source = CMP1D
+  // 45mv hysteresis
+  DAC2CONL = 0x805B;
+
+  set_l_voltage(DEFAULT_DACL_VOLTAGE);
+}
+
+static void InitDAC3 (void)
+{
+  DAC3CONH = 0x0; //TMCB 0; 
+  // DAC3 Enabled
+  // DAC output is connected to DACOUT1
+  DAC3CONL = 0x8200;
+
+  set_dac_voltage(DEFAULT_DACL_VOLTAGE);
 }
 
 static void InitADC (void)
@@ -157,18 +197,31 @@ static void InitADC (void)
 
 static void InitClock (void)
 {
-  //FVCO = 1000 MHz, FP = 25 MHz
+  //FVCO = 800 MHz, FP = 100 MHz
   // Configure PLL prescaler, both PLL postscalers, and PLL feedback divider
   CLKDIVbits.PLLPRE = 1; // N1=1
-  PLLFBDbits.PLLFBDIV = 125; // M = 125
-  PLLDIVbits.POST1DIV = 5; // N2=5
-  PLLDIVbits.POST2DIV = 2; // N3=2
+  PLLFBDbits.PLLFBDIV = 100; // M = 100
+  PLLDIVbits.POST1DIV = 2; // N2=2
+  PLLDIVbits.POST2DIV = 1; // N3=1
   // Initiate Clock Switch to FRC with PLL (NOSC=0b001)
   __builtin_write_OSCCONH(0x01);
   __builtin_write_OSCCONL(OSCCON | 0x01);
   // Wait for Clock switch to occur
   while (OSCCONbits.OSWEN!= 0)
     ;
+
+  // Select internal FRC as the clock source
+  ACLKCON1bits.FRCSEL = 1;
+  // Configure the APLL prescaler, APLL feedback divider, and both APLL postscalers.
+  ACLKCON1bits.APLLPRE = 1; // N1 = 1
+  APLLFBD1bits.APLLFBDIV = 125; // M = 125
+  APLLDIV1bits.APOST1DIV = 2; // N2 = 2
+  APLLDIV1bits.APOST2DIV = 1; // N3 = 1
+  // Enable APLL
+  ACLKCON1bits.APLLEN = 1;
+
+  // reference clock is enabled, source is FVCO/4
+  //REFOCONL = 0x8006;
 }
 
 static void InitTimer1 (void)
@@ -187,16 +240,6 @@ static void InitTimer1 (void)
   IPC0bits.T1IP = 1;
   // init the Timer 1 Interrupt
   IEC0bits.T1IE = 1;
-}
-
-static void InitComparator1 (void)
-{
-  //todo
-}
-
-static void InitComparator2 (void)
-{
-  //todo
 }
 
 static void InitI2C (void)
@@ -252,6 +295,69 @@ static void InitSPI (void)
   SPI1CON1Lbits.SPIEN = 1;
 }
 
+static void InitSCCP(void)
+{
+  // Asynchronous module time base clock is selected
+  // clock is FP
+  // 32 bit time base
+  // 32 bit timer mode
+  CCP1CON1L = 0x0020;
+  // comparator 1 output as gate
+  CCP1CON2L = 0x0001;
+
+  CCP2CON1L = 0x0020;
+  // comparator 2 output as gate
+  CCP2CON2L = 0x0002;
+
+  CCP3CON1L = 0x0020;
+  // CLC1 output as gate
+  CCP3CON2L = 0x0020;
+
+  //CLC2 as clock source
+  CCP4CON1L = 0x0C20;
+}
+
+static void InitCLC(void)
+{
+  // MUX3 output is comparator 2 output
+  // MUX2 output is comparator 1 output
+  CLC1SEL = 0x0220;
+  // gate 1 data source 2 true enable
+  // gate 2 data source 2 true enable
+  CLC1GLSL = 0x0808;
+  // gate 3 data source 3 true enable
+  // gate 4 data source 3 true enable
+  CLC1GLSH = 0x2020;
+  //CLC1 is enabled
+  //the output of the module is inverted
+  // mode is four input and-or
+  CLC1CONL = 0x8020;
+
+  // MUX3 output is comparator 2 output
+  // MUX2 output is comparator 1 output
+  CLC2SEL = 0x0220;
+  // gate 2 data source 2 true enable
+  CLC2GLSL = 0x0008;
+  // gate 3 data source 3 true enable
+  CLC2GLSH = 0x0020;
+  //CLC2 is enabled
+  //the output of the module is not inverted
+  // mode is sr latch
+  CLC2CONL = 0x8003;
+}
+
+static void InitPWM(void)
+{
+  //AFVCO/2 as clock source
+  PCLKCON = 1;
+  // PWM generator uses master clock selected by PCLKCON[1:0]
+  PG1CONL = 8;
+  PG1PER = 500000000/10000;
+  PG1DC = 500000000/10000 / 2;
+  //PWM1H output is enabled
+  PG1IOCONH = 8;
+}
+
 void SystemInit (void)
 {
   uart_buffer_write_p = uart_buffer;
@@ -260,14 +366,17 @@ void SystemInit (void)
   
   InitClock ();
   InitADC ();
+  InitDACs ();
   InitDAC1 ();
   InitDAC2 ();
-  InitComparator1 ();
-  InitComparator2 ();
+  InitDAC3 ();
   InitI2C ();
   InitTimer1 ();
   InitUART ();
   InitSPI ();
+  InitCLC ();
+  InitSCCP ();
+  InitPWM ();
   InitPorts ();
 }
 
@@ -290,39 +399,59 @@ void delayms(unsigned int ms)
 
 void set_h_voltage(unsigned int value)
 {
+  DAC1DATH = mv_to_12(value);
 }
 
 void set_l_voltage(unsigned int value)
 {
+  DAC2DATH = mv_to_12(value);
 }
 
 unsigned int get_l_voltage(void)
 {
-  return 0;
+  return mv_from_12(DAC2DATH);
 }
 
 unsigned int get_h_voltage(void)
 {
-  return 0;
+  return mv_from_12(DAC1DATH);
 }
 
 void set_dac_voltage(unsigned int value)
 {
-  //todo
+  DAC3DATH = mv_to_12(value);
 }
 
 unsigned int get_dac_voltage(void)
 {
-  return 0;
+  return mv_from_12(DAC3DATH);
 }
 
 void stop_counters(void)
 {
+  T1CONbits.TON = 0;
+  CCP1CON1Lbits.CCPON = 0;
+  CCP2CON1Lbits.CCPON = 0;
+  CCP3CON1Lbits.CCPON = 0;
+  CCP4CON1Lbits.CCPON = 0;
 }
 
 void start_counters(void)
 {
-  
+  TMR1 = 0;
+  CCP1TMRL = 0;
+  CCP1TMRH = 0;
+  CCP2TMRL = 0;
+  CCP2TMRH = 0;
+  CCP3TMRL = 0;
+  CCP3TMRH = 0;
+  CCP4TMRL = 0;
+  CCP4TMRH = 0;
+  T1CONbits.TON = 1;
+  CCP1CON1Lbits.CCPON = 1;
+  CCP2CON1Lbits.CCPON = 1;
+  CCP3CON1Lbits.CCPON = 1;
+  CCP4CON1Lbits.CCPON = 1;
 }
 
 void pwm_set_frequency_and_duty(unsigned int frequency, unsigned int duty)

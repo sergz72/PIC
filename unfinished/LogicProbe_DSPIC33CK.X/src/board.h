@@ -10,6 +10,7 @@
 
 // 8MHz oscillator: RB0
 
+#ifdef __dsPIC33CK256MP508__
 //LEDs:
 //LED1 yellow: RE6
 //LED2 yellow: RE5
@@ -21,6 +22,13 @@
 #define LED_OFF LATEbits.LATE6 = 0
 #define LED2_ON LATEbits.LATE5 = 1
 #define LED2_OFF LATEbits.LATE5 = 0
+#define LED_RED_ON LATEbits.LATE15 = 1
+#define LED_RED_OFF LATEbits.LATE15 = 0
+#define LED_GREEN_ON LATEbits.LATE14 = 1
+#define LED_GREEN_OFF LATEbits.LATE14 = 0
+#define LED_BLUE_ON LATEbits.LATE13 = 1
+#define LED_BLUE_OFF LATEbits.LATE13 = 0
+#endif
 
 //UART:
 //TX: RD4
@@ -33,6 +41,7 @@
 //Potentiometer: RE3
 //VBus: RE1
 
+#ifdef __dsPIC33CK256MP508__
 // Buttons: RE7, RE8, RE9
 #define BUTTON1_PORT PORTE
 #define BUTTON1_PIN 7
@@ -43,20 +52,16 @@
 #define BUTTON1_PIN_POS (1<<BUTTON1_PIN)
 #define BUTTON2_PIN_POS (1<<BUTTON2_PIN)
 #define BUTTON3_PIN_POS (1<<BUTTON3_PIN)
-
-#define KB_NONE    0
-#define KB_BUTTON1 1
-#define KB_BUTTON2 2
-#define KB_BUTTON3 3
+#endif
 
 #define T1_INTERRUPT_MS 100
 
-#define FP_FREQUENCY   25000000
-#define FOSC_FREQUENCY 50000000
+#define FP_FREQUENCY   100000000
+#define FOSC_FREQUENCY 200000000
 
 #define DAC_REFERENCE_VOLTAGE 3300
 
-#define COUNTERS_MAX 366
+#define COUNTERS_MAX 152
 
 #define WS2812_MAX_VALUE 0x40
 
@@ -72,11 +77,8 @@
 
 #define DAC3_PRESENT
 
-#define I2C_TIMEOUT 1000000
-#define SPI_TIMEOUT 1000000
-
 #define SSD1306_128_32
-#define LCD_ORIENTATION LCD_ORIENTATION_LANDSCAPE_REVERSED
+#define LCD_ORIENTATION LCD_ORIENTATION_LANDSCAPE
 
 #include <lcd_ssd1306.h>
 

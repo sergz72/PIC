@@ -26,7 +26,10 @@ void puts_(const char *s)
 
 void update_counters(void)
 {
-  //todo
+  counter_high = CCP1TMRH;
+  counter_low  = CCP2TMRH;
+  counter_z    = CCP3TMRH;
+  counter_freq_rs = ((unsigned long)CCP4TMRH << 16) | (unsigned long)CCP4TMRL;
 }
 
 void PeriodicTimerStart(void)
