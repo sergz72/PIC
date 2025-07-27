@@ -63,7 +63,7 @@
 
 #define COUNTERS_MAX 152
 
-#define WS2812_MAX_VALUE 0x40
+#define WS2812_MAX_VALUE 0xFF
 
 #define RAMFUNC
 #define WEAK __attribute__ ((weak))
@@ -77,13 +77,22 @@
 
 #define DAC3_PRESENT
 
-#define SSD1306_128_32
-#define LCD_ORIENTATION LCD_ORIENTATION_LANDSCAPE
+#define LCD_WIDTH  64
+#define LCD_HEIGHT 64
+#define SSD1357_MADCTL_VALUE (SSD1357_MADCTL_X_MIRROR | SSD1357_MADCTL_Y_MIRROR)
+#define DISPLAY_MAX_COLUMNS    8
+#define DISPLAY_MAX_ROWS       8
+#include <font8.h>
 
-#include <lcd_ssd1306.h>
-
-#define SSD1306_SEGREMAP_COMMAND SSD1306_SEGREMAP
-#define SSD1306_COMSCAN_COMMAND SSD1306_COMSCANINC
+//RD2
+#define LCD_DC_PIN_CLR LATDbits.LATD2 = 0
+#define LCD_DC_PIN_SET LATDbits.LATD2 = 1
+//RD8
+#define LCD_RST_PIN_CLR LATDbits.LATD8 = 0
+#define LCD_RST_PIN_SET LATDbits.LATD8 = 1
+//RB9
+#define LCD_CS_PIN_CLR LATBbits.LATB9 = 0
+#define LCD_CS_PIN_SET LATBbits.LATB9 = 1
 
 extern char uart_buffer[UART_BUFFER_SIZE];
 extern char *uart_buffer_write_p;
@@ -91,5 +100,6 @@ extern char *uart_buffer_write_p;
 void SystemInit(void);
 void UART1_Transmit(unsigned char txData);
 void delayms(unsigned int ms);
+void delay(unsigned int us);
 
 #endif

@@ -51,17 +51,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=src/main.c src/hal.c src/fuses.c ../../ARM_CLION/logic_probe_core/counters_commands.c ../../ARM_CLION/logic_probe_core/dac_commands.c ../../ARM_CLION/logic_probe_core/main.c ../../ARM_CLION/logic_probe_core/pwm_commands.c ../../ARM_CLION/logic_probe_core/ui_common.c ../../ARM_CLION/common_lib/shell/shell.c ../../ARM_CLION/common_lib/getstring.c ../../ARM_CLION/common_lib/common_printf.c ../../ARM_CLION/common_lib/ws2812_spi.c ../../ARM_CLION/common_lib/myprintf.c ../../ARM_CLION/common_lib/itoa.c ../../ARM_CLION/common_lib/ultoa.c ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c ../../ARM_CLION/common_lib/fixed_queue.c ../../ARM_CLION/logic_probe_core/led_commands.c ../../ARM_CLION/common_lib/read_hex_string.c ../../ARM_CLION/common_lib/display/lcd_ssd1306.c
+SOURCEFILES_QUOTED_IF_SPACED=src/main.c src/hal.c src/fuses.c ../../ARM_CLION/logic_probe_core/counters_commands.c ../../ARM_CLION/logic_probe_core/dac_commands.c ../../ARM_CLION/logic_probe_core/main.c ../../ARM_CLION/logic_probe_core/pwm_commands.c ../../ARM_CLION/logic_probe_core/ui_common.c ../../ARM_CLION/common_lib/shell/shell.c ../../ARM_CLION/common_lib/getstring.c ../../ARM_CLION/common_lib/common_printf.c ../../ARM_CLION/common_lib/myprintf.c ../../ARM_CLION/common_lib/itoa.c ../../ARM_CLION/common_lib/ultoa.c ../../ARM_CLION/common_lib/fixed_queue.c ../../ARM_CLION/common_lib/read_hex_string.c ../../ARM_CLION/logic_probe_core/ui_64x64.c ../../ARM_CLION/common_lib/display/display2.c ../../ARM_CLION/common_lib/display/lcd_ssd1357.c ../../ARM_CLION/logic_probe_core/font8.c ../../ARM_CLION/common_lib/display/spi_lcd_common.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/hal.o ${OBJECTDIR}/src/fuses.o ${OBJECTDIR}/_ext/760846718/counters_commands.o ${OBJECTDIR}/_ext/760846718/dac_commands.o ${OBJECTDIR}/_ext/760846718/main.o ${OBJECTDIR}/_ext/760846718/pwm_commands.o ${OBJECTDIR}/_ext/760846718/ui_common.o ${OBJECTDIR}/_ext/2102214395/shell.o ${OBJECTDIR}/_ext/1738954588/getstring.o ${OBJECTDIR}/_ext/1738954588/common_printf.o ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o ${OBJECTDIR}/_ext/1738954588/myprintf.o ${OBJECTDIR}/_ext/1738954588/itoa.o ${OBJECTDIR}/_ext/1738954588/ultoa.o ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o ${OBJECTDIR}/_ext/760846718/led_commands.o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/src/main.o.d ${OBJECTDIR}/src/hal.o.d ${OBJECTDIR}/src/fuses.o.d ${OBJECTDIR}/_ext/760846718/counters_commands.o.d ${OBJECTDIR}/_ext/760846718/dac_commands.o.d ${OBJECTDIR}/_ext/760846718/main.o.d ${OBJECTDIR}/_ext/760846718/pwm_commands.o.d ${OBJECTDIR}/_ext/760846718/ui_common.o.d ${OBJECTDIR}/_ext/2102214395/shell.o.d ${OBJECTDIR}/_ext/1738954588/getstring.o.d ${OBJECTDIR}/_ext/1738954588/common_printf.o.d ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o.d ${OBJECTDIR}/_ext/1738954588/myprintf.o.d ${OBJECTDIR}/_ext/1738954588/itoa.o.d ${OBJECTDIR}/_ext/1738954588/ultoa.o.d ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o.d ${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d ${OBJECTDIR}/_ext/760846718/led_commands.o.d ${OBJECTDIR}/_ext/1738954588/read_hex_string.o.d ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/hal.o ${OBJECTDIR}/src/fuses.o ${OBJECTDIR}/_ext/760846718/counters_commands.o ${OBJECTDIR}/_ext/760846718/dac_commands.o ${OBJECTDIR}/_ext/760846718/main.o ${OBJECTDIR}/_ext/760846718/pwm_commands.o ${OBJECTDIR}/_ext/760846718/ui_common.o ${OBJECTDIR}/_ext/2102214395/shell.o ${OBJECTDIR}/_ext/1738954588/getstring.o ${OBJECTDIR}/_ext/1738954588/common_printf.o ${OBJECTDIR}/_ext/1738954588/myprintf.o ${OBJECTDIR}/_ext/1738954588/itoa.o ${OBJECTDIR}/_ext/1738954588/ultoa.o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o ${OBJECTDIR}/_ext/760846718/ui_64x64.o ${OBJECTDIR}/_ext/1979377065/display2.o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o ${OBJECTDIR}/_ext/760846718/font8.o ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/src/main.o.d ${OBJECTDIR}/src/hal.o.d ${OBJECTDIR}/src/fuses.o.d ${OBJECTDIR}/_ext/760846718/counters_commands.o.d ${OBJECTDIR}/_ext/760846718/dac_commands.o.d ${OBJECTDIR}/_ext/760846718/main.o.d ${OBJECTDIR}/_ext/760846718/pwm_commands.o.d ${OBJECTDIR}/_ext/760846718/ui_common.o.d ${OBJECTDIR}/_ext/2102214395/shell.o.d ${OBJECTDIR}/_ext/1738954588/getstring.o.d ${OBJECTDIR}/_ext/1738954588/common_printf.o.d ${OBJECTDIR}/_ext/1738954588/myprintf.o.d ${OBJECTDIR}/_ext/1738954588/itoa.o.d ${OBJECTDIR}/_ext/1738954588/ultoa.o.d ${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d ${OBJECTDIR}/_ext/1738954588/read_hex_string.o.d ${OBJECTDIR}/_ext/760846718/ui_64x64.o.d ${OBJECTDIR}/_ext/1979377065/display2.o.d ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o.d ${OBJECTDIR}/_ext/760846718/font8.o.d ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/hal.o ${OBJECTDIR}/src/fuses.o ${OBJECTDIR}/_ext/760846718/counters_commands.o ${OBJECTDIR}/_ext/760846718/dac_commands.o ${OBJECTDIR}/_ext/760846718/main.o ${OBJECTDIR}/_ext/760846718/pwm_commands.o ${OBJECTDIR}/_ext/760846718/ui_common.o ${OBJECTDIR}/_ext/2102214395/shell.o ${OBJECTDIR}/_ext/1738954588/getstring.o ${OBJECTDIR}/_ext/1738954588/common_printf.o ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o ${OBJECTDIR}/_ext/1738954588/myprintf.o ${OBJECTDIR}/_ext/1738954588/itoa.o ${OBJECTDIR}/_ext/1738954588/ultoa.o ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o ${OBJECTDIR}/_ext/760846718/led_commands.o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o
+OBJECTFILES=${OBJECTDIR}/src/main.o ${OBJECTDIR}/src/hal.o ${OBJECTDIR}/src/fuses.o ${OBJECTDIR}/_ext/760846718/counters_commands.o ${OBJECTDIR}/_ext/760846718/dac_commands.o ${OBJECTDIR}/_ext/760846718/main.o ${OBJECTDIR}/_ext/760846718/pwm_commands.o ${OBJECTDIR}/_ext/760846718/ui_common.o ${OBJECTDIR}/_ext/2102214395/shell.o ${OBJECTDIR}/_ext/1738954588/getstring.o ${OBJECTDIR}/_ext/1738954588/common_printf.o ${OBJECTDIR}/_ext/1738954588/myprintf.o ${OBJECTDIR}/_ext/1738954588/itoa.o ${OBJECTDIR}/_ext/1738954588/ultoa.o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o ${OBJECTDIR}/_ext/760846718/ui_64x64.o ${OBJECTDIR}/_ext/1979377065/display2.o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o ${OBJECTDIR}/_ext/760846718/font8.o ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o
 
 # Source Files
-SOURCEFILES=src/main.c src/hal.c src/fuses.c ../../ARM_CLION/logic_probe_core/counters_commands.c ../../ARM_CLION/logic_probe_core/dac_commands.c ../../ARM_CLION/logic_probe_core/main.c ../../ARM_CLION/logic_probe_core/pwm_commands.c ../../ARM_CLION/logic_probe_core/ui_common.c ../../ARM_CLION/common_lib/shell/shell.c ../../ARM_CLION/common_lib/getstring.c ../../ARM_CLION/common_lib/common_printf.c ../../ARM_CLION/common_lib/ws2812_spi.c ../../ARM_CLION/common_lib/myprintf.c ../../ARM_CLION/common_lib/itoa.c ../../ARM_CLION/common_lib/ultoa.c ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c ../../ARM_CLION/common_lib/fixed_queue.c ../../ARM_CLION/logic_probe_core/led_commands.c ../../ARM_CLION/common_lib/read_hex_string.c ../../ARM_CLION/common_lib/display/lcd_ssd1306.c
+SOURCEFILES=src/main.c src/hal.c src/fuses.c ../../ARM_CLION/logic_probe_core/counters_commands.c ../../ARM_CLION/logic_probe_core/dac_commands.c ../../ARM_CLION/logic_probe_core/main.c ../../ARM_CLION/logic_probe_core/pwm_commands.c ../../ARM_CLION/logic_probe_core/ui_common.c ../../ARM_CLION/common_lib/shell/shell.c ../../ARM_CLION/common_lib/getstring.c ../../ARM_CLION/common_lib/common_printf.c ../../ARM_CLION/common_lib/myprintf.c ../../ARM_CLION/common_lib/itoa.c ../../ARM_CLION/common_lib/ultoa.c ../../ARM_CLION/common_lib/fixed_queue.c ../../ARM_CLION/common_lib/read_hex_string.c ../../ARM_CLION/logic_probe_core/ui_64x64.c ../../ARM_CLION/common_lib/display/display2.c ../../ARM_CLION/common_lib/display/lcd_ssd1357.c ../../ARM_CLION/logic_probe_core/font8.c ../../ARM_CLION/common_lib/display/spi_lcd_common.c
 
 
 
@@ -155,12 +155,6 @@ ${OBJECTDIR}/_ext/1738954588/common_printf.o: ../../ARM_CLION/common_lib/common_
 	@${RM} ${OBJECTDIR}/_ext/1738954588/common_printf.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/common_printf.c  -o ${OBJECTDIR}/_ext/1738954588/common_printf.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/common_printf.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/1738954588/ws2812_spi.o: ../../ARM_CLION/common_lib/ws2812_spi.c  .generated_files/flags/508_Debug/793778bc33c630707aeaf578944f0076c4257439 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
-	@${RM} ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/ws2812_spi.c  -o ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/ws2812_spi.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/_ext/1738954588/myprintf.o: ../../ARM_CLION/common_lib/myprintf.c  .generated_files/flags/508_Debug/420b00b3a58c57c0c0f66a0470387231216d27b7 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/myprintf.o.d 
@@ -179,23 +173,11 @@ ${OBJECTDIR}/_ext/1738954588/ultoa.o: ../../ARM_CLION/common_lib/ultoa.c  .gener
 	@${RM} ${OBJECTDIR}/_ext/1738954588/ultoa.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/ultoa.c  -o ${OBJECTDIR}/_ext/1738954588/ultoa.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/ultoa.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o: ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c  .generated_files/flags/508_Debug/c70b7be984246726115dffc548e0f79af4c17f62 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
-	@${RM} ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o.d 
-	@${RM} ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c  -o ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/_ext/1738954588/fixed_queue.o: ../../ARM_CLION/common_lib/fixed_queue.c  .generated_files/flags/508_Debug/5a17d978c6a76c67ff0742b524a7ed53e9df2bc9 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/fixed_queue.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/fixed_queue.c  -o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
-${OBJECTDIR}/_ext/760846718/led_commands.o: ../../ARM_CLION/logic_probe_core/led_commands.c  .generated_files/flags/508_Debug/183ab15b0702ddf38544430a57c9c4e133e8607e .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
-	@${RM} ${OBJECTDIR}/_ext/760846718/led_commands.o.d 
-	@${RM} ${OBJECTDIR}/_ext/760846718/led_commands.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/led_commands.c  -o ${OBJECTDIR}/_ext/760846718/led_commands.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/led_commands.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 ${OBJECTDIR}/_ext/1738954588/read_hex_string.o: ../../ARM_CLION/common_lib/read_hex_string.c  .generated_files/flags/508_Debug/c308fa590f1585aa5d3b7bbe28772dac94179113 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
@@ -203,11 +185,35 @@ ${OBJECTDIR}/_ext/1738954588/read_hex_string.o: ../../ARM_CLION/common_lib/read_
 	@${RM} ${OBJECTDIR}/_ext/1738954588/read_hex_string.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/read_hex_string.c  -o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/read_hex_string.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o: ../../ARM_CLION/common_lib/display/lcd_ssd1306.c  .generated_files/flags/508_Debug/d4a2cf658933414ee74c96ab941c54e93bb35f56 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+${OBJECTDIR}/_ext/760846718/ui_64x64.o: ../../ARM_CLION/logic_probe_core/ui_64x64.c  .generated_files/flags/508_Debug/2a23dba5869b1d6a8ff42f0153b6b85581822bea .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
+	@${RM} ${OBJECTDIR}/_ext/760846718/ui_64x64.o.d 
+	@${RM} ${OBJECTDIR}/_ext/760846718/ui_64x64.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/ui_64x64.c  -o ${OBJECTDIR}/_ext/760846718/ui_64x64.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/ui_64x64.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/display2.o: ../../ARM_CLION/common_lib/display/display2.c  .generated_files/flags/508_Debug/9b845062057d9662e2103373f1873556350a2c26 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
-	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/lcd_ssd1306.c  -o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${RM} ${OBJECTDIR}/_ext/1979377065/display2.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/display2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/display2.c  -o ${OBJECTDIR}/_ext/1979377065/display2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/display2.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o: ../../ARM_CLION/common_lib/display/lcd_ssd1357.c  .generated_files/flags/508_Debug/cb92978eed7d3f602dd9bb70454fbc4b81034388 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/lcd_ssd1357.c  -o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/760846718/font8.o: ../../ARM_CLION/logic_probe_core/font8.c  .generated_files/flags/508_Debug/3f9513d660be944470bae052ad65fd5ba8d2fd3d .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
+	@${RM} ${OBJECTDIR}/_ext/760846718/font8.o.d 
+	@${RM} ${OBJECTDIR}/_ext/760846718/font8.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/font8.c  -o ${OBJECTDIR}/_ext/760846718/font8.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/font8.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o: ../../ARM_CLION/common_lib/display/spi_lcd_common.c  .generated_files/flags/508_Debug/1964f143fa5c34f58fc193636325758c5ebd67e4 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/spi_lcd_common.c  -o ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o.d"      -g -D__DEBUG   -mno-eds-warn  -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 else
 ${OBJECTDIR}/src/main.o: src/main.c  .generated_files/flags/508_Debug/8cecf23fe5a2d422b12808255ce6f767f891ecd .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
@@ -276,12 +282,6 @@ ${OBJECTDIR}/_ext/1738954588/common_printf.o: ../../ARM_CLION/common_lib/common_
 	@${RM} ${OBJECTDIR}/_ext/1738954588/common_printf.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/common_printf.c  -o ${OBJECTDIR}/_ext/1738954588/common_printf.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/common_printf.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/1738954588/ws2812_spi.o: ../../ARM_CLION/common_lib/ws2812_spi.c  .generated_files/flags/508_Debug/2f3fdb20641e161f5c7dc634bdaf06841180aa71 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
-	@${RM} ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/ws2812_spi.c  -o ${OBJECTDIR}/_ext/1738954588/ws2812_spi.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/ws2812_spi.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/_ext/1738954588/myprintf.o: ../../ARM_CLION/common_lib/myprintf.c  .generated_files/flags/508_Debug/9d697e2010b087c07ab59a7e6a078d72cdb151bd .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/myprintf.o.d 
@@ -300,23 +300,11 @@ ${OBJECTDIR}/_ext/1738954588/ultoa.o: ../../ARM_CLION/common_lib/ultoa.c  .gener
 	@${RM} ${OBJECTDIR}/_ext/1738954588/ultoa.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/ultoa.c  -o ${OBJECTDIR}/_ext/1738954588/ultoa.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/ultoa.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o: ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c  .generated_files/flags/508_Debug/87bc0b63b8356ff5ca881a0f1b145d51c229bdcf .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
-	@${RM} ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o.d 
-	@${RM} ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c  -o ${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/ui_128x32_with_rs.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
 ${OBJECTDIR}/_ext/1738954588/fixed_queue.o: ../../ARM_CLION/common_lib/fixed_queue.c  .generated_files/flags/508_Debug/399c817394bd2f0e55dcd8621319e1b873570f0b .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d 
 	@${RM} ${OBJECTDIR}/_ext/1738954588/fixed_queue.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/fixed_queue.c  -o ${OBJECTDIR}/_ext/1738954588/fixed_queue.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/fixed_queue.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
-	
-${OBJECTDIR}/_ext/760846718/led_commands.o: ../../ARM_CLION/logic_probe_core/led_commands.c  .generated_files/flags/508_Debug/6636db41911e4eac5af11b23fdfe6b374f823afa .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
-	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
-	@${RM} ${OBJECTDIR}/_ext/760846718/led_commands.o.d 
-	@${RM} ${OBJECTDIR}/_ext/760846718/led_commands.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/led_commands.c  -o ${OBJECTDIR}/_ext/760846718/led_commands.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/led_commands.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 ${OBJECTDIR}/_ext/1738954588/read_hex_string.o: ../../ARM_CLION/common_lib/read_hex_string.c  .generated_files/flags/508_Debug/be0aa18e6ade74ccb031d8e3cf9edabf940b3cb9 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1738954588" 
@@ -324,11 +312,35 @@ ${OBJECTDIR}/_ext/1738954588/read_hex_string.o: ../../ARM_CLION/common_lib/read_
 	@${RM} ${OBJECTDIR}/_ext/1738954588/read_hex_string.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/read_hex_string.c  -o ${OBJECTDIR}/_ext/1738954588/read_hex_string.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1738954588/read_hex_string.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
-${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o: ../../ARM_CLION/common_lib/display/lcd_ssd1306.c  .generated_files/flags/508_Debug/7b1dcbec9f9ede3c22e5b53911009e0119cebbb3 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+${OBJECTDIR}/_ext/760846718/ui_64x64.o: ../../ARM_CLION/logic_probe_core/ui_64x64.c  .generated_files/flags/508_Debug/d2075435cdea48a014b56446a4c31c65137bf73a .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
+	@${RM} ${OBJECTDIR}/_ext/760846718/ui_64x64.o.d 
+	@${RM} ${OBJECTDIR}/_ext/760846718/ui_64x64.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/ui_64x64.c  -o ${OBJECTDIR}/_ext/760846718/ui_64x64.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/ui_64x64.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/display2.o: ../../ARM_CLION/common_lib/display/display2.c  .generated_files/flags/508_Debug/1252c3b92bc94682adc9a14802cf31edf9f164ae .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
 	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
-	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o.d 
-	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/lcd_ssd1306.c  -o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/lcd_ssd1306.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	@${RM} ${OBJECTDIR}/_ext/1979377065/display2.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/display2.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/display2.c  -o ${OBJECTDIR}/_ext/1979377065/display2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/display2.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o: ../../ARM_CLION/common_lib/display/lcd_ssd1357.c  .generated_files/flags/508_Debug/a5e87a3f65bff20934712ed634bc799bd06077fa .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/lcd_ssd1357.c  -o ${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/lcd_ssd1357.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/760846718/font8.o: ../../ARM_CLION/logic_probe_core/font8.c  .generated_files/flags/508_Debug/1e1b3bb1b889cbb03cc7a07cb519d0246074c64c .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/760846718" 
+	@${RM} ${OBJECTDIR}/_ext/760846718/font8.o.d 
+	@${RM} ${OBJECTDIR}/_ext/760846718/font8.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/logic_probe_core/font8.c  -o ${OBJECTDIR}/_ext/760846718/font8.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/760846718/font8.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
+	
+${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o: ../../ARM_CLION/common_lib/display/spi_lcd_common.c  .generated_files/flags/508_Debug/111114f759d7f4cdb309f66573499e10a34a16a6 .generated_files/flags/508_Debug/da39a3ee5e6b4b0d3255bfef95601890afd80709
+	@${MKDIR} "${OBJECTDIR}/_ext/1979377065" 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o.d 
+	@${RM} ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../../ARM_CLION/common_lib/display/spi_lcd_common.c  -o ${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MP -MMD -MF "${OBJECTDIR}/_ext/1979377065/spi_lcd_common.o.d"      -mno-eds-warn  -g -omf=elf -DXPRJ_508_Debug=$(CND_CONF)    $(COMPARISON_BUILD)  -ffunction-sections -msmall-code -mlarge-data -O0 -I"../../ARM_CLION/logic_probe_core" -I"src" -I"../../ARM_CLION/common_lib" -I"../../ARM_CLION/common_lib/shell" -I"../../ARM_CLION/common_lib/display" -msmart-io=1 -Wall -msfr-warn=off    -mdfp="${DFP_DIR}/xc16"
 	
 endif
 

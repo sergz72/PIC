@@ -14,12 +14,13 @@
       <itemPath>../../ARM_CLION/common_lib/fixed_queue.h</itemPath>
       <itemPath>../../ARM_CLION/common_lib/getstring.h</itemPath>
       <itemPath>../../ARM_CLION/common_lib/myprintf.h</itemPath>
-      <itemPath>../../ARM_CLION/common_lib/ws2812_spi.h</itemPath>
       <itemPath>../../ARM_CLION/common_lib/itoa.h</itemPath>
       <itemPath>../../ARM_CLION/common_lib/ultoa.h</itemPath>
-      <itemPath>../../ARM_CLION/logic_probe_core/led_commands.h</itemPath>
       <itemPath>../../ARM_CLION/common_lib/read_hex_string.h</itemPath>
-      <itemPath>../../ARM_CLION/common_lib/display/lcd_ssd1306.h</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/display2.h</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/lcd_ssd1357.h</itemPath>
+      <itemPath>../../ARM_CLION/logic_probe_core/font8.h</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/spi_lcd_common.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -44,15 +45,16 @@
       <itemPath>../../ARM_CLION/common_lib/shell/shell.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/getstring.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/common_printf.c</itemPath>
-      <itemPath>../../ARM_CLION/common_lib/ws2812_spi.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/myprintf.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/itoa.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/ultoa.c</itemPath>
-      <itemPath>../../ARM_CLION/logic_probe_core/ui_128x32_with_rs.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/fixed_queue.c</itemPath>
-      <itemPath>../../ARM_CLION/logic_probe_core/led_commands.c</itemPath>
       <itemPath>../../ARM_CLION/common_lib/read_hex_string.c</itemPath>
-      <itemPath>../../ARM_CLION/common_lib/display/lcd_ssd1306.c</itemPath>
+      <itemPath>../../ARM_CLION/logic_probe_core/ui_64x64.c</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/display2.c</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/lcd_ssd1357.c</itemPath>
+      <itemPath>../../ARM_CLION/logic_probe_core/font8.c</itemPath>
+      <itemPath>../../ARM_CLION/common_lib/display/spi_lcd_common.c</itemPath>
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>

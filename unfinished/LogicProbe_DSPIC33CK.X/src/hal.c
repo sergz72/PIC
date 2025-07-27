@@ -1,28 +1,11 @@
 #include "board.h"
 #include <string.h>
-
-typedef enum
-{
-    S_MASTER_SEND_ADDR,
-    S_MASTER_SEND_CONTROL_BYTE,
-    S_MASTER_SEND_DATA,
-    S_MASTER_ERROR,
-    S_MASTER_DONE
-} I2C_MASTER_STATES;
-
-typedef struct
-{
-  I2C_MASTER_STATES status;
-  unsigned char address;
-  unsigned char control_byte;
-  unsigned char *buffer;
-  int length;
-} I2C_MASTER_DATA;
+#include <spi_lcd_common.h>
 
 char uart_buffer[UART_BUFFER_SIZE];
 char *uart_buffer_write_p;
 
-static volatile I2C_MASTER_DATA i2c_data;
+static unsigned int prev_flags = LCD_FLAG_CS;
 
 void __attribute__ ((interrupt, no_auto_psv)) _T1Interrupt ()
 {
@@ -41,66 +24,17 @@ void __attribute__ ( ( interrupt, no_auto_psv ) ) _U1RXInterrupt(void)
   }
 }
 
-static int I2C1_CheckACK(void)
-{
-  if (I2C1STATbits.ACKSTAT)
-  {
-    I2C1STATbits.ACKSTAT = 0;
-    I2C1CONLbits.PEN = 1;
-    i2c_data.status = S_MASTER_ERROR;
-    return 0;
-  }
-  return 1;
-}
-
-void __attribute__ ( ( interrupt, no_auto_psv ) ) _MI2C1Interrupt ( void )
-{
-  IFS1bits.MI2C1IF = 0;
-  
-  if (I2C1STATbits.IWCOL)
-  {
-    I2C1STATbits.IWCOL = 0;
-    i2c_data.status = S_MASTER_ERROR;
-  }
-
-  switch (i2c_data.status)
-  {
-    case S_MASTER_SEND_ADDR:
-      I2C1TRN = i2c_data.address;
-      i2c_data.status = S_MASTER_SEND_CONTROL_BYTE;
-      break;
-    case S_MASTER_SEND_CONTROL_BYTE:
-      if (!I2C1_CheckACK())
-        break;
-      I2C1TRN = i2c_data.control_byte;
-      i2c_data.status = S_MASTER_SEND_DATA;
-      break;
-    case S_MASTER_SEND_DATA:
-      if (!I2C1_CheckACK())
-        break;
-      if (!i2c_data.length)
-      {
-        I2C1CONLbits.PEN = 1;
-        i2c_data.status = S_MASTER_DONE;
-        break;
-      }
-      I2C1TRN = *i2c_data.buffer++;
-      i2c_data.length--;
-      break;
-    default:
-      break;
-  }
-}
-
 static void InitPorts (void)
 {
   /****************************************************************************
    * Setting the Output Latch SFR(s)
    ***************************************************************************/
-  LATA = 0x0000;
-  LATB = 0x0000;
 #ifdef __dsPIC33CK256MP508__
+  LATA = 0x0000;
+  // CS is high
+  LATB = 0x0200;
   LATC = 0x0000;
+  // TXD is high
   LATD = 0x0010;
   LATE = 0x0000;
 #else
@@ -115,11 +49,11 @@ static void InitPorts (void)
    * Setting the GPIO Direction SFR(s)
    ***************************************************************************/
 #ifdef __dsPIC33CK256MP508__
-  // RB9, RB14 - OUT
+  // RB9(CS), RB14 (PWM) - OUT
   TRISB = 0xBDFF;
-  // RD4 - OUT
-  TRISD = 0xFFEF;
-  // RE5, RE6, RE13, RE14, RE15 - OUT
+  // RD2 (DC), RD4 (UART_TX), RD6(SCK), RD7 (SDO), RD8(RES) - OUT
+  TRISD = 0xFE2B;
+  // RE5(LED2), RE6(LED1), RE13(LED_B), RE14(LED_G), RE15(LED_R) - OUT
   TRISE = 0x1F9F;
 #endif
 #ifdef __dsPIC33CK256MP202__
@@ -132,7 +66,8 @@ static void InitPorts (void)
   RPINR18bits.U1RXR = 0x0043; //RD3->UART1:U1RX;
   RPOR18bits.RP68R = 0x0001;  //RD4->UART1:U1TX;
   
-  RPOR4bits.RP41R = 0x0005;  //RB9->SPI1:SDO1;
+  RPOR19bits.RP70R = 0x0006;  //RD6->SPI1:SCK;
+  RPOR19bits.RP71R = 0x0005;  //RD7->SPI1:SDO;
 #endif
 #ifdef __dsPIC33CK256MP202__
 #error Not ready yet
@@ -242,23 +177,6 @@ static void InitTimer1 (void)
   IEC0bits.T1IE = 1;
 }
 
-static void InitI2C (void)
-{
-    // initialize the hardware
-    // Baud Rate Generator Value: I2CBRG 62;
-    I2C1BRG = FP_FREQUENCY / 2 / 200000;
-    // ACKEN disabled; STRICT disabled; STREN disabled; GCEN disabled; SMEN disabled; DISSLW enabled; I2CSIDL disabled; ACKDT Sends ACK; SCLREL Holds;
-    I2C1CONL = 0x8000;
-    // BCL disabled; P disabled; S disabled; I2COV disabled; IWCOL disabled; 
-    I2C1STAT = 0x00;
-
-    /* I2C1 Master Event */
-    // clear the master interrupt flag
-    IFS1bits.MI2C1IF = 0;
-    // enable the master interrupt
-    IEC1bits.MI2C1IE = 1;
-}
-
 static void InitUART (void)
 {
   //Mode = Asynchronous 8-bit UART
@@ -284,10 +202,11 @@ static void InitSPI (void)
 {
   // Host mode
   // SDI input is disabled
-  // SCK output is disabled
   // Enhanced buffer mode is enabled
   // 8 bit communication
-  SPI1CON1L = 0x0039;
+  // Transmit happens on transition from active clock state to Idle clock state
+  // Idle state for clock is a low level; active state is a high level
+  SPI1CON1L = 0x0131;
   
   SPI1BRGL = FP_FREQUENCY / 2500000 / 2 - 1;
   
@@ -346,6 +265,7 @@ static void InitCLC(void)
   CLC2CONL = 0x8003;
 }
 
+//RB14 - PWM out
 static void InitPWM(void)
 {
   //AFVCO/2 as clock source
@@ -361,8 +281,6 @@ static void InitPWM(void)
 void SystemInit (void)
 {
   uart_buffer_write_p = uart_buffer;
-  i2c_data.status = S_MASTER_DONE;
-  i2c_data.address = SSD1306_I2C_ADDRESS;
   
   InitClock ();
   InitADC ();
@@ -370,7 +288,6 @@ void SystemInit (void)
   InitDAC1 ();
   InitDAC2 ();
   InitDAC3 ();
-  InitI2C ();
   InitTimer1 ();
   InitUART ();
   InitSPI ();
@@ -389,6 +306,20 @@ void UART1_Transmit(unsigned char txData)
 }
 
 void delayms(unsigned int ms)
+{
+  timer_event = 0;
+  ms /= 100;
+  T1CONbits.TON = 1;
+  while (ms--)
+  {
+    while (!timer_event)
+      Idle();
+    timer_event = 0;
+  }
+  T1CONbits.TON = 0;
+}
+
+void delay(unsigned int us)
 {
   timer_event = 0;
   T1CONbits.TON = 1;
@@ -475,39 +406,49 @@ void disconnect_pullup(void)
 {
 }
 
-void SPI1_Write(const unsigned char *data, unsigned int length)
-{   
-  while (length)
+void Lcd_WriteBytes(unsigned int flags, unsigned char *data, unsigned int size)
+{
+  if (prev_flags != flags)
   {
-      if (!SPI1STATLbits.SPITBF)
-      {
-          SPI1BUFL = *data++;
-          length--;
-      }
+    prev_flags = flags;
+    if (flags & LCD_FLAG_DC)
+      LCD_DC_PIN_SET;
+    else
+      LCD_DC_PIN_CLR;
+    if (flags & LCD_FLAG_CS)
+    {
+      LCD_CS_PIN_SET;
+      return;
+    }
+    LCD_CS_PIN_CLR;
   }
-}
-
-void ws2812_spi_send(int channel, const unsigned char *data, unsigned int count)
-{
-  SPI1_Write(data, count);
-}
-
-int SSD1306_I2C_Write(int num_bytes, unsigned char control_byte, unsigned char *buffer)
-{
-  static unsigned char buffer_copy[16];
-
-  while ((i2c_data.status != S_MASTER_DONE) && (i2c_data.status != S_MASTER_ERROR))
-    Idle();
-  while (I2C1STATbits.TRSTAT | I2C1CONLbits.PEN)
+  while (size)
+  {
+    if (!SPI1STATLbits.SPITBF)
+    {
+      SPI1BUFL = *data++;
+      size--;
+    }
+  }
+  while (SPI1STATLbits.SPIBUSY)
     ;
-  
-  memcpy(buffer_copy, buffer, num_bytes);
-  
-  //send start condition
-  i2c_data.control_byte = control_byte;
-  i2c_data.length = num_bytes;
-  i2c_data.buffer = buffer_copy;
-  i2c_data.status = S_MASTER_SEND_ADDR;
-  I2C1CONLbits.SEN = 1;
-  return 0;
+}
+
+void Lcd_WriteColor(unsigned int color, unsigned int count)
+{
+  prev_flags = LCD_FLAG_DC;
+  LCD_DC_PIN_SET;
+  unsigned char c1 = (unsigned char)color;
+  unsigned char c2 = (unsigned char)(color >> 8);
+  while (count--)
+  {
+    while (SPI1STATLbits.SPITBF)
+      ;
+    SPI1BUFL = c1;
+    while (SPI1STATLbits.SPITBF)
+      ;
+    SPI1BUFL = c2;
+  }
+  while (SPI1STATLbits.SPIBUSY)
+    ;
 }

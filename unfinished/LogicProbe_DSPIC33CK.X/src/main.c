@@ -1,7 +1,6 @@
 #include "board.h"
 #include <stdio.h>
 #include <string.h>
-#include <led_commands.h>
 
 char *uart_buffer_read_p;
 
@@ -50,5 +49,4 @@ void CustomMainInit(void)
 
 void register_custom_commands(void)
 {
-  register_led_commands();
 }
