@@ -3,6 +3,7 @@
 #include <string.h>
 
 char *uart_buffer_read_p;
+static unsigned long prev_counter_freq_rs;
 
 int getch_(void)
 {
@@ -28,7 +29,9 @@ void update_counters(void)
   counter_high = CCP1TMRH;
   counter_low  = CCP2TMRH;
   counter_z    = CCP3TMRH;
-  counter_freq_rs = ((unsigned long)CCP4TMRH << 16) | (unsigned long)CCP4TMRL;
+  unsigned long counter_value = ((unsigned long)CCP4TMRH << 16) | (unsigned long)CCP4TMRL;
+  counter_freq_rs = counter_value - prev_counter_freq_rs;
+  prev_counter_freq_rs = counter_value;
 }
 
 void PeriodicTimerStart(void)
@@ -45,6 +48,7 @@ void PeriodicTimerStart(void)
 
 void CustomMainInit(void)
 {
+  prev_counter_freq_rs = 0;
 }
 
 void register_custom_commands(void)

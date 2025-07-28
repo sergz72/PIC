@@ -61,7 +61,7 @@
 
 #define DAC_REFERENCE_VOLTAGE 3300
 
-#define COUNTERS_MAX 152
+#define COUNTERS_MAX 153
 
 #define WS2812_MAX_VALUE 0xFF
 
@@ -93,6 +93,8 @@
 //RB9
 #define LCD_CS_PIN_CLR LATBbits.LATB9 = 0
 #define LCD_CS_PIN_SET LATBbits.LATB9 = 1
+
+#define PWM_CLOCK 500000000L
 
 extern char uart_buffer[UART_BUFFER_SIZE];
 extern char *uart_buffer_write_p;

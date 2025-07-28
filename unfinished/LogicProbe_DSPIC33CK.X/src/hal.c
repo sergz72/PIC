@@ -208,7 +208,7 @@ static void InitSPI (void)
   // Idle state for clock is a low level; active state is a high level
   SPI1CON1L = 0x0131;
   
-  SPI1BRGL = FP_FREQUENCY / 2500000 / 2 - 1;
+  SPI1BRGL = FP_FREQUENCY / 5000000 / 2 - 1;
   
   // SPI enable
   SPI1CON1Lbits.SPIEN = 1;
@@ -272,10 +272,9 @@ static void InitPWM(void)
   PCLKCON = 1;
   // PWM generator uses master clock selected by PCLKCON[1:0]
   PG1CONL = 8;
-  PG1PER = 500000000/10000;
-  PG1DC = 500000000/10000 / 2;
   //PWM1H output is enabled
   PG1IOCONH = 8;
+  pwm_set_frequency_and_duty(10000, 50);
 }
 
 void SystemInit (void)
@@ -376,8 +375,6 @@ void start_counters(void)
   CCP2TMRH = 0;
   CCP3TMRL = 0;
   CCP3TMRH = 0;
-  CCP4TMRL = 0;
-  CCP4TMRH = 0;
   T1CONbits.TON = 1;
   CCP1CON1Lbits.CCPON = 1;
   CCP2CON1Lbits.CCPON = 1;
@@ -385,8 +382,18 @@ void start_counters(void)
   CCP4CON1Lbits.CCPON = 1;
 }
 
-void pwm_set_frequency_and_duty(unsigned int frequency, unsigned int duty)
+void pwm_set_frequency_and_duty(unsigned long frequency, unsigned int duty)
 {
+  PG1CONLbits.ON = 0;
+  unsigned long period = ((unsigned long)PWM_CLOCK)/frequency;
+  if (period < 0x10)
+    period = 0x10;
+  if (period > 65535)
+    period = 65535;
+  unsigned long lduty = period * duty / 100;
+  PG1PER = (unsigned int)period - 1;
+  PG1DC = (unsigned int)lduty;
+  PG1CONLbits.ON = 1;
 }
 
 void adc_start(void)
