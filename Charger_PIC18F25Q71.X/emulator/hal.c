@@ -8,6 +8,11 @@
 extern signed char keyboard_state;
 extern int exit_delay;
 extern int exit_long_press;
+extern int blue_led_state;
+extern int red_led_state;
+extern int green_led_state;
+extern int yellow_led_state;
+
 static unsigned char lcd_buffer[SIZE], *lcd_buffer_p = lcd_buffer;
 static int current = 0;
 static unsigned char OPA1OFFSET = 0x80, OPA2OFFSET = 0x80;
@@ -52,11 +57,6 @@ unsigned int get_voltage(void)
 void set_current(int mA)
 {
   current = mA;
-}
-
-int get_current(void)
-{
-  return 0;
 }
 
 int save_data(unsigned char offset, void *p, unsigned int size)
@@ -133,4 +133,43 @@ void enable_opamp2(void)
 void disable_opamp2(void)
 {
 
+}
+
+void blue_led_on()
+{
+  blue_led_state = 1;
+}
+void blue_led_off()
+{
+  blue_led_state = 0;
+}
+
+void yellow_led_on()
+{
+  yellow_led_state = 1;
+}
+
+void yellow_led_off()
+{
+  yellow_led_state = 0;
+}
+
+void green_led_on()
+{
+  green_led_state = 1;
+}
+
+void green_led_off()
+{
+  green_led_state = 0;
+}
+
+void red_led_on()
+{
+  red_led_state = 1;
+}
+
+void red_led_off()
+{
+  red_led_state = 0;
 }

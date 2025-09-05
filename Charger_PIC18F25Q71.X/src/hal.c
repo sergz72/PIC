@@ -98,12 +98,12 @@ int save_offsets(void)
 {
     offsets[0] = OPA1OFFSET;
     offsets[1] = OPA2OFFSET;
-    return save_data(PROGRAMS_SIZE, offsets, 2);
+    return save_data(sizeof(Program), offsets, 2);
 }
 
 static void load_offsets(void)
 {
-    load_data(PROGRAMS_SIZE, offsets, 2);
+    load_data(sizeof(Program), offsets, 2);
 }
 
 static unsigned long adc_get(unsigned char ain)
@@ -141,8 +141,6 @@ void set_current(int mA)
     set_current_value = mA;
     if (mA == 0)
     {
-        LED2_OFF;
-        LED3_OFF;
         disable_opamp1();
         disable_opamp2();
         set_dac_hi(DAC_HI_MAX);
@@ -151,8 +149,6 @@ void set_current(int mA)
     }
     if (mA > 0) // charge
     {
-        LED2_ON;
-        LED3_OFF;
         disable_opamp2();
         DAC2DATL = 0;
         unsigned long v = (unsigned long)mA * (unsigned long)DAC_HI_MAX / (2 * DAC_HI_VREF); // 0.47 Ohm resistor
@@ -160,35 +156,11 @@ void set_current(int mA)
         enable_opamp1();
         return;
     }
-    LED2_OFF;
-    LED3_ON;
     disable_opamp1();
     mA = -mA;
     set_dac_hi(DAC_HI_MAX);
     DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_LO_VREF); // 0.47 Ohm resistor
     enable_opamp2();
-}
-
-static int get_current_hi(void)
-{
-    unsigned long vcc = (unsigned long)FVR1_VALUE * (unsigned long)4095 / ref; // 12 bit ADC
-    int mA = (int)((4095UL - adc_get(2)) * vcc / (4096 / 2)); // RA2, 0.47 Ohm resistor
-    return mA; // 0.47 Ohm resistor
-}
-
-static int get_current_lo(void)
-{
-    unsigned int mv = get_mv(0x0A); // RB2
-    return (int)(mv << 1); // 0.47 Ohm resistor
-}
-
-int get_current(void)
-{
-    if (set_current_value == 0)
-        return 0;
-    if (set_current_value > 0) // charge
-        return get_current_hi();
-    return -get_current_lo();
 }
 
 signed char get_keyboard_status(void)
@@ -478,4 +450,43 @@ void SystemInit(void)
     InitTimer0();
     
     CPUDOZE |= _CPUDOZE_IDLEN_MASK;
+}
+
+void blue_led_on()
+{
+  LED_BLUE_ON;
+}
+
+void blue_led_off()
+{
+  LED_BLUE_OFF;
+}
+
+void yellow_led_on()
+{
+  LED_YELLOW_ON;
+}
+
+void yellow_led_off()
+{
+  LED_YELLOW_OFF;
+}
+
+void green_led_on()
+{
+  LED_GREEN_ON;
+}
+
+void green_led_off()
+{
+  LED_GREEN_OFF;
+}
+void red_led_on()
+{
+  LED_RED_ON;
+}
+
+void red_led_off()
+{
+  LED_RED_OFF;
 }

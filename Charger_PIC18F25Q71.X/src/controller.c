@@ -1,177 +1,135 @@
 #include "board.h"
 #include "controller.h"
 
-static ProgramItem programs[MAX_PROGRAMS][MAX_PROGRAM_ITEMS];
-static ProgramItem *current_program_step;
-static unsigned int current_program;
-static int current_current, pause;
+static unsigned int current_current;
+static int cv_mode;
+float charge_mah;
+float discharge_mah;
 
-void set_current_program(unsigned int id)
-{
-  current_program = id;
-}
-
-unsigned int get_current_program(void)
-{
-  return current_program;
-}
-
-ProgramItem *get_program_steps(void)
-{
-  return programs[current_program];
-}
-
-ProgramItem *get_current_step(void)
-{
-  return current_program_step;
-}
-
-int is_program_step_valid(ProgramItem *step)
-{
-  return step != NULL && (step->mode == MODE_CHARGE || step->mode == MODE_DISCHARGE_CC ||
-         step->mode == MODE_DISCHARGE_CV || step->mode == MODE_DELETE);
-}
-
-void create_program_item(ProgramItem *step)
-{
-  step->mode = MODE_DISCHARGE_CC;
-  step->voltage = 4200;
-  step->max_current = MAX_CURRENT;
-  step->stop_current = 50;
-  step->trigger_voltage = 4000;
-}
+enum Stages current_stage, next_stage;
+Program program = {
+  .charge = {
+    .current = 1000,
+    .voltage = 4200
+  },
+  .discharge = {
+    .current = 1000,
+    .voltage = 2500
+  },
+  .mode = MODE_CHARGE
+};
 
 void controller_init(void)
 {
-  current_program_step = NULL;
-  current_program = 0;
   current_current = 0;
-  pause = 0;
-  load_data(0, programs, sizeof programs);
+  load_data(0, &program, sizeof program);
 }
 
 void save_program_data(void)
 {
-  save_data(0, programs, sizeof programs);
+  save_data(0, &program, sizeof program);
 }
 
-static int select_program(unsigned int voltage)
+static void goto_next_stage(void)
 {
-  while (current_program_step - programs[current_program] < MAX_PROGRAM_ITEMS - 1 &&
-         is_program_step_valid(current_program_step))
-  {
-    switch (current_program_step->mode)
-    {
-      case MODE_CHARGE:
-        if (voltage <= current_program_step->trigger_voltage)
-          return 1;
-        break;
-      case MODE_DISCHARGE_CC:
-      case MODE_DISCHARGE_CV:
-        if (voltage >= current_program_step->trigger_voltage)
-          return 1;
-        break;
-    }
-    current_program_step++;
-  }
-  stop_program();
-  return 0;
-}
-
-static void next_program_step(unsigned int voltage)
-{
+  current_stage = next_stage;
   current_current = 0;
-  if (current_program_step - programs[current_program] == MAX_PROGRAM_ITEMS - 1)
+  cv_mode = 0;
+  switch (current_stage)
   {
-    stop_program();
-    return;
+    case CHARGE1:
+      charge_mah = 0;
+      current_current = program.charge.current / 10;
+      next_stage = DISCHARGE2;
+      break;
+    case DISCHARGE2:
+      discharge_mah = 0;
+      current_current = program.discharge.current;
+      next_stage = CHARGE2;
+      break;
+    case CHARGE2:
+      charge_mah = 0;
+      current_current = program.charge.current / 10;
+      next_stage = IDLE;
+      break;
+  default:
+      next_stage = IDLE;
+      break;
   }
-  current_program_step++;
-  if (!select_program(voltage))
-    return;
-  if (!is_program_step_valid(current_program_step))
-    stop_program();
-  else
-    pause = 10 * 1000 / TIMER_DELAY;
 }
 
 static void update_charge_current(unsigned int voltage)
 {
-  if (voltage > current_program_step->voltage)
+  if (voltage >= program.charge.voltage)
   {
-    current_current -= 10;
-    if (current_current < (int)current_program_step->stop_current)
-      next_program_step(voltage);
-  }
-  else if (voltage < current_program_step->voltage)
-  {
-    current_current += 10;
-    if (current_current > (int)current_program_step->max_current)
-      current_current = (int)current_program_step->max_current;
-  }
-}
-
-static void update_discharge_cc_current(unsigned int voltage)
-{
-  if (voltage > current_program_step->voltage)
-  {
-    if (current_current <= (int)current_program_step->max_current - 10)
-      current_current += 10;
-  }
-  else
-      next_program_step(voltage);
-}
-
-static void update_discharge_cv_current(unsigned int voltage)
-{
-  if (voltage > current_program_step->voltage)
-  {
-    if (current_current <= (int)current_program_step->max_current - 10)
-      current_current += 10;
-  }
-  else if (voltage < current_program_step->voltage)
-  {
-    if (current_current >= 10 && current_current >= current_program_step->stop_current)
-      current_current -= 10;
+    cv_mode = 1;
+    if (current_current <= 10)
+      goto_next_stage();
     else
-      next_program_step(voltage);
+      current_current -= 10;
   }
+  else if (!cv_mode && current_current < program.charge.current)
+    current_current += program.charge.current / 10;
+
+  charge_mah += (float)current_current / (float)(3600 * 1000 / TIMER_DELAY);
 }
 
-int update_current(unsigned int voltage)
+static void update_discharge_current(unsigned int voltage)
 {
-  if (current_program_step == NULL)
+  if (voltage <= program.discharge.voltage)
+    goto_next_stage();
+  discharge_mah += (float)current_current / (float)(3600 * 1000 / TIMER_DELAY);
+}
+
+unsigned int update_current(unsigned int voltage)
+{
+  if (current_stage == IDLE)
     return 0;
-  if (pause)
-  {
-    pause--;
-    return 0;
-  }
-  if (current_program_step->mode == MODE_CHARGE)
+  if (current_stage == CHARGE1 || current_stage == CHARGE2)
   {
     update_charge_current(voltage);
     return current_current;
   }
-  if (current_program_step->mode == MODE_DISCHARGE_CC)
-    update_discharge_cc_current(voltage);
-  else
-    update_discharge_cv_current(voltage);
-  return -current_current;
+  update_discharge_current(voltage);
+  return current_current;
 }
 
-void start_program(unsigned int voltage)
+void start_program(enum Modes mode)
 {
-  current_program_step = programs[current_program];
-  select_program(voltage);
+  if (current_stage != IDLE)
+    return;
+  charge_mah = 0;
+  discharge_mah = 0;
+  switch (mode)
+  {
+    case CHARGE:
+      cv_mode = 0;
+      current_current = program.charge.current / 10;
+      current_stage = CHARGE1;
+      next_stage = IDLE;
+      break;
+    case DISCHARGE:
+      current_current = program.discharge.current;
+      current_stage = DISCHARGE1;
+      next_stage = IDLE;
+      break;
+    case CAPACITY_TEST:
+      current_current = program.discharge.current;
+      current_stage = DISCHARGE1;
+      next_stage = CHARGE1;
+      break;
+    default:
+      break;
+  }
 }
 
 void stop_program(void)
 {
-  current_program_step = NULL;
+  current_stage = IDLE;
   current_current = 0;
 }
 
 int is_program_running(void)
 {
-  return current_program_step != NULL;
+  return current_stage != IDLE;
 }

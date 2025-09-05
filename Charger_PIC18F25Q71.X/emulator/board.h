@@ -20,10 +20,10 @@
 #define KB_ENTER 4
 #define KB_EXIT_LONG 5
 
-#define MAX_PROGRAM_ITEMS 5
-#define MAX_PROGRAMS 4
 #define MAX_CURRENT 2000
-#define MAX_VOLTAGE 5000
+#define MIN_CURRENT 10
+#define MAX_VOLTAGE 4400
+#define MIN_VOLTAGE 1200
 
 #define ZOOM 4
 
@@ -35,7 +35,6 @@ signed char get_keyboard_status(void);
 int get_lcd_buffer_bit(int x, int y);
 unsigned int get_voltage(void);
 void set_current(int mA);
-int get_current(void);
 int save_data(unsigned char offset, void *p, unsigned int size);
 void load_data(unsigned char offset, void *p, unsigned int size);
 void set_opamp1_offset(unsigned char offset);
@@ -47,5 +46,13 @@ void enable_opamp1(void);
 void disable_opamp1(void);
 void enable_opamp2(void);
 void disable_opamp2(void);
+void blue_led_on();
+void blue_led_off();
+void yellow_led_on();
+void yellow_led_off();
+void green_led_on();
+void green_led_off();
+void red_led_on();
+void red_led_off();
 
 #endif

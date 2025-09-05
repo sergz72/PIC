@@ -1,5 +1,5 @@
-#ifndef OVENCONTROLUI_BOARD_H
-#define OVENCONTROLUI_BOARD_H
+#ifndef _BOARD_H
+#define _BOARD_H
 
 #ifndef NULL
 #define NULL 0
@@ -23,10 +23,10 @@
 #define KB_ENTER 4
 #define KB_EXIT_LONG 5
 
-#define MAX_PROGRAM_ITEMS 5
-#define MAX_PROGRAMS 4
 #define MAX_CURRENT 2000
-#define MAX_VOLTAGE 5000
+#define MAX_VOLTAGE 4400
+#define MIN_VOLTAGE 1200
+#define MIN_CURRENT 10
 
 #define RTC_INT_MS 50
 
@@ -53,13 +53,14 @@
 
 #define _XTAL_FREQ 16000000
 
-#define LED1_TOGGLE LATBbits.LATB0 ^= 1
-#define LED2_ON LATCbits.LATC6 = 1
-#define LED2_OFF LATCbits.LATC6 = 0
-#define LED3_ON LATCbits.LATC7 = 1
-#define LED3_OFF LATCbits.LATC7 = 0
-#define LED4_ON LATBbits.LATB4 = 1
-#define LED4_OFF LATBbits.LATB4 = 0
+#define LED_BLUE_ON LATBbits.LATB0 = 1
+#define LED_BLUE_OFF LATBbits.LATB0 = 0
+#define LED_YELLOW_ON LATCbits.LATC6 = 1
+#define LED_YELLOW_OFF LATCbits.LATC6 = 0
+#define LED_GREEN_ON LATCbits.LATC7 = 1
+#define LED_GREEN_OFF LATCbits.LATC7 = 0
+#define LED_RED_ON LATBbits.LATB4 = 1
+#define LED_RED_OFF LATBbits.LATB4 = 0
 
 #define TIMER0_INTERRUPT_MS 16
 
@@ -70,7 +71,6 @@ void SystemInit(void);
 signed char get_keyboard_status(void);
 unsigned int get_voltage(void);
 void set_current(int mA);
-int get_current(void);
 int save_data(unsigned char offset, void *p, unsigned int size);
 void load_data(unsigned char offset, void *p, unsigned int size);
 void set_opamp1_offset(unsigned char offset);
@@ -82,5 +82,14 @@ void enable_opamp1(void);
 void disable_opamp1(void);
 void enable_opamp2(void);
 void disable_opamp2(void);
+
+void blue_led_on(void);
+void blue_led_off(void);
+void yellow_led_on(void);
+void yellow_led_off(void);
+void green_led_on(void);
+void green_led_off(void);
+void red_led_on(void);
+void red_led_off(void);
 
 #endif
