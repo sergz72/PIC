@@ -17,12 +17,10 @@ int main()
   {
     delay_counter = 0;
     
-    LED1_TOGGLE;
-
     signed char keyboard_status = get_keyboard_status();
     unsigned int v = get_voltage();
-    int current = update_current(v);
-    Process_Timer_Event(keyboard_status, v, current, get_current());
+    unsigned int current = update_current(v);
+    Process_Timer_Event(keyboard_status, v, current);
     
     delayms(TIMER_DELAY);
   }

@@ -3,11 +3,11 @@
 #define MAX_VOLTAGE 4350.0
 #define MIN_VOLTAGE 2500.0
 #define MILLISECONDS_IN_HOUR (3600.0 * 1000.0)
-#define R 0.2
+#define R 0.4
 
 static double voltage = 3700;
-static double capacity = 4000;
-static double current_capacity = 3000;
+static double capacity = 1000;
+static double current_capacity = 1000;
 
 void set_battery_voltage(unsigned int mv)
 {
@@ -18,7 +18,7 @@ void set_battery_voltage(unsigned int mv)
 void set_battery_capacity(unsigned int mah)
 {
   capacity = mah;
-  set_battery_voltage(voltage);
+  set_battery_voltage((unsigned int)voltage);
 }
 
 unsigned int get_next_voltage(unsigned int ms, int current)

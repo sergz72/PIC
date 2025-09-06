@@ -4,9 +4,17 @@
 #include "battery_emulator.h"
 #include <gtk/gtk.h>
 
+#define LED_SIZE 40
+
 signed char keyboard_state = 0;
 int exit_delay = 0;
 int exit_long_press = 0;
+int blue_led_state = 0;
+int red_led_state = 0;
+int green_led_state = 0;
+int yellow_led_state = 0;
+
+static GtkWidget *led_area;
 
 static void
 draw_cb (GtkDrawingArea *drawing_area,
@@ -30,6 +38,41 @@ draw_cb (GtkDrawingArea *drawing_area,
 }
 
 static void
+draw_leds_cb (GtkDrawingArea *drawing_area,
+         cairo_t        *cr,
+         int             width,
+         int             height,
+         gpointer        data)
+{
+  cairo_set_source_rgb (cr, 1, 1, 1);
+  cairo_paint (cr);
+  if (blue_led_state)
+  {
+    cairo_set_source_rgb (cr, 0, 0, 1);
+    cairo_rectangle (cr, 0, 0, LED_SIZE, LED_SIZE);
+    cairo_fill(cr);
+  }
+  if (yellow_led_state)
+  {
+    cairo_set_source_rgb (cr, 1, 1, 0);
+    cairo_rectangle (cr, LED_SIZE, 0, LED_SIZE, LED_SIZE);
+    cairo_fill(cr);
+  }
+  if (green_led_state)
+  {
+    cairo_set_source_rgb (cr, 0, 1, 0);
+    cairo_rectangle (cr, 0, LED_SIZE, LED_SIZE, LED_SIZE);
+    cairo_fill(cr);
+  }
+  if (red_led_state)
+  {
+    cairo_set_source_rgb (cr, 1, 0, 0);
+    cairo_rectangle (cr, LED_SIZE, LED_SIZE, LED_SIZE, LED_SIZE);
+    cairo_fill(cr);
+  }
+}
+
+static void
 close_window (void)
 {
 }
@@ -41,10 +84,11 @@ static gboolean time_handler(GtkWidget *widget)
 
   signed char keyboard_status = get_keyboard_status();
   unsigned int v = get_voltage();
-  int current = update_current(v);
-  Process_Timer_Event(keyboard_status, v, current, get_current());
+  unsigned int current = update_current(v);
+  Process_Timer_Event(keyboard_status, v, current);
 
   gtk_widget_queue_draw(widget);
+  gtk_widget_queue_draw(led_area);
 
   return TRUE;
 }
@@ -96,7 +140,7 @@ activate (GtkApplication *app,
           gpointer        user_data)
 {
   GtkWidget *window;
-  GtkWidget *hbox, *vbox;
+  GtkWidget *hbox, *vbox, *vbox_up, *vbox_down;
   GtkWidget *button;
   GtkWidget *drawing_area;
 
@@ -119,21 +163,33 @@ activate (GtkApplication *app,
 
   vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
   gtk_box_append (GTK_BOX (hbox), vbox);
-  gtk_widget_set_halign (vbox, GTK_ALIGN_END);
-  gtk_widget_set_valign (vbox, GTK_ALIGN_END);
+
+  vbox_up = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  gtk_box_append (GTK_BOX (vbox), vbox_up);
+
+  led_area = gtk_drawing_area_new ();
+  gtk_widget_set_size_request (led_area, LED_SIZE * 2, LED_SIZE * 2);
+  gtk_box_append (GTK_BOX (vbox_up), led_area);
+  gtk_widget_set_vexpand (vbox_up, true);
+  gtk_drawing_area_set_draw_func (GTK_DRAWING_AREA (led_area), draw_leds_cb, NULL, NULL);
+
+  vbox_down = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
+  gtk_box_append (GTK_BOX (vbox), vbox_down);
+  gtk_widget_set_hexpand (vbox_down, true);
+  gtk_widget_set_valign (vbox_down, GTK_ALIGN_END);
 
   button = gtk_button_new_with_label ("UP");
   g_signal_connect (button, "clicked", G_CALLBACK (upEvent), NULL);
-  gtk_box_append (GTK_BOX (vbox), button);
+  gtk_box_append (GTK_BOX (vbox_down), button);
   button = gtk_button_new_with_label ("DOWN");
   g_signal_connect (button, "clicked", G_CALLBACK (downEvent), NULL);
-  gtk_box_append (GTK_BOX (vbox), button);
+  gtk_box_append (GTK_BOX (vbox_down), button);
   button = gtk_button_new_with_label ("SELECT");
   g_signal_connect (button, "clicked", G_CALLBACK (selectEvent), NULL);
-  gtk_box_append (GTK_BOX (vbox), button);
+  gtk_box_append (GTK_BOX (vbox_down), button);
   button = gtk_button_new_with_label ("ENTER");
   g_signal_connect (button, "clicked", G_CALLBACK (enterEvent), NULL);
-  gtk_box_append (GTK_BOX (vbox), button);
+  gtk_box_append (GTK_BOX (vbox_down), button);
 
   GtkGesture *gesture = gtk_gesture_long_press_new ();
 
@@ -144,7 +200,7 @@ activate (GtkApplication *app,
     gtk_widget_add_controller (gtk_button_get_child (GTK_BUTTON (button)), GTK_EVENT_CONTROLLER (gesture));
   else
     gtk_widget_add_controller (button, GTK_EVENT_CONTROLLER (gesture));
-  gtk_box_append (GTK_BOX (vbox), button);
+  gtk_box_append (GTK_BOX (vbox_down), button);
 
   gtk_window_present (GTK_WINDOW (window));
 
@@ -161,7 +217,7 @@ main (int    argc,
   GtkApplication *app;
   int status;
 
-  set_battery_capacity(400);
+  set_battery_capacity(50);
   unsigned int battery_voltage = 3700;
   if (argc > 1)
   {
