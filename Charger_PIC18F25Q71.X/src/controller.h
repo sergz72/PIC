@@ -13,11 +13,12 @@ typedef struct
 
 typedef struct {
   int mode;
-  ModeParameters charge;
+  ModeParameters charge1;
+  ModeParameters charge2;
   ModeParameters discharge;
 } Program;
 
-enum Stages {IDLE, DISCHARGE1, CHARGE1, DISCHARGE2, CHARGE2};
+enum Stages {IDLE, CHARGE1, DISCHARGE1, CHARGE2};
 enum Modes {CHARGE, DISCHARGE, CAPACITY_TEST};
 
 extern enum Stages current_stage;

@@ -6,10 +6,10 @@
 #include "controller.h"
 
 /*
- *  Mode|Charge  C 1000
- *  Chrg|Charge  V 4200
- *  Disc|Dischrg C 0500
- *  Test|Dischrg V 2500
+ *  Mode|Stg| mV | mA
+ *  Chrg|Ch1|3650|1000
+ *  Disc|Dis|3000|0100
+ *  Test|Ch2|3200|0100
  *  1C0000mA0000mV
  *  Charge 0000mAh
  *  Dischr 0000mAh
@@ -19,7 +19,7 @@
 #define SELECTION_MODE_SELECT_VALUE 1
 #define SELECTION_MODE_EDIT_VALUE   2
 #define SELECTION_MODE_TEST         3
-#define MAX_SELECTED_DIGIT          11
+#define MAX_SELECTED_DIGIT          17
 
 #define SETTINGS_FONT fiveBySevenFontInfo
 #define CURRENT_VOLTAGE_FONT courierNew8ptFontInfo
@@ -39,7 +39,7 @@ static int selected_offset;
 int selected_digit;
 static enum CursorStates cursor_state;
 static enum Stages prev_stage;
-static int blue_led_state;
+static int blue_led_state, save_event;
 static unsigned int event_no;
 
 static void DrawValue4(unsigned int x, unsigned int y, const FONT_INFO *font, unsigned int value,
@@ -173,36 +173,58 @@ static enum Modes GetPrevMode()
   }
 }
 
-static void DrawChargeCurrent(void)
+static void DrawCharge1Current(void)
 {
-  DrawValue3(GET_X(SETTINGS_FONT, 14), 0, &SETTINGS_FONT, program.charge.current / 10, WHITE_COLOR,
+  DrawValue3(GET_X(SETTINGS_FONT, 14), SETTINGS_FONT.char_height, &SETTINGS_FONT, program.charge1.current / 10, WHITE_COLOR,
+              BLACK_COLOR, cursor_state != OFF ? selected_digit - 3 : 100);
+}
+
+static void DrawCharge1Voltage(void)
+{
+  DrawValue3(GET_X(SETTINGS_FONT, 9), SETTINGS_FONT.char_height, &SETTINGS_FONT, program.charge1.voltage / 10, WHITE_COLOR,
               BLACK_COLOR, cursor_state != OFF ? selected_digit : 100);
 }
 
-static void DrawChargeVoltage(void)
+static void DrawCharge2Current(void)
 {
-  DrawValue3(GET_X(SETTINGS_FONT, 14), SETTINGS_FONT.char_height, &SETTINGS_FONT, program.charge.voltage / 10, WHITE_COLOR,
-              BLACK_COLOR, cursor_state != OFF ? selected_digit - 3: 100);
+  DrawValue3(GET_X(SETTINGS_FONT, 14), SETTINGS_FONT.char_height*3, &SETTINGS_FONT, program.charge2.current / 10, WHITE_COLOR,
+              BLACK_COLOR, cursor_state != OFF ? selected_digit - 15 : 100);
+}
+
+static void DrawCharge2Voltage(void)
+{
+  DrawValue3(GET_X(SETTINGS_FONT, 9), SETTINGS_FONT.char_height*3, &SETTINGS_FONT, program.charge2.voltage / 10, WHITE_COLOR,
+              BLACK_COLOR, cursor_state != OFF ? selected_digit - 12 : 100);
 }
 
 static void DrawDischargeCurrent(void)
 {
   DrawValue3(GET_X(SETTINGS_FONT, 14), 2*SETTINGS_FONT.char_height, &SETTINGS_FONT, program.discharge.current / 10, WHITE_COLOR,
-              BLACK_COLOR, cursor_state != OFF ? selected_digit - 6 : 100);
+              BLACK_COLOR, cursor_state != OFF ? selected_digit - 9 : 100);
 }
 
 static void DrawDischargeVoltage(void)
 {
-  DrawValue3(GET_X(SETTINGS_FONT, 14), 3*SETTINGS_FONT.char_height, &SETTINGS_FONT, program.discharge.voltage / 10, WHITE_COLOR,
-              BLACK_COLOR, cursor_state != OFF ? selected_digit - 9 : 100);
+  DrawValue3(GET_X(SETTINGS_FONT, 9), 2*SETTINGS_FONT.char_height, &SETTINGS_FONT, program.discharge.voltage / 10, WHITE_COLOR,
+              BLACK_COLOR, cursor_state != OFF ? selected_digit - 6 : 100);
 }
 
 static void DrawSelection(void)
 {
-  DrawChargeCurrent();
-  DrawChargeVoltage();
+  DrawCharge1Current();
+  DrawCharge1Voltage();
+  DrawCharge2Current();
+  DrawCharge2Voltage();
   DrawDischargeCurrent();
   DrawDischargeVoltage();
+}
+
+static void BackToSelectMode(void)
+{
+  selection_mode = SELECTION_MODE_SELECT_MODE;
+  selected_digit = MAX_SELECTED_DIGIT+1;
+  cursor_state = INACTIVE;
+  DrawSelection();
 }
 
 static void SwitchSelectionMode(int up)
@@ -225,11 +247,7 @@ static void SwitchSelectionMode(int up)
       cursor_state = ON;
     }
     else
-    {
-      selection_mode = SELECTION_MODE_SELECT_MODE;
-      selected_digit = MAX_SELECTED_DIGIT+1;
-      DrawSelection();
-    }
+      BackToSelectMode();
     break;
   case SELECTION_MODE_EDIT_VALUE:
     if (!up)
@@ -246,41 +264,59 @@ static void UpdateValue(int counter)
 {
   switch (selected_digit)
   {
-    case 0: // thousands of charge current
-      program.charge.current = GetNewValue(program.charge.current, counter, 1000, MAX_CURRENT, MIN_CURRENT);
+    case 0: // thousands of charge voltage
+      program.charge1.voltage = GetNewValue(program.charge1.voltage, counter, 1000, MAX_VOLTAGE, MIN_VOLTAGE);
       break;
-    case 1: // hundreds of charge current
-      program.charge.current = GetNewValue(program.charge.current, counter, 100, MAX_CURRENT, MIN_CURRENT);
+    case 1: // hundreds of charge voltage
+      program.charge1.voltage = GetNewValue(program.charge1.voltage, counter, 100, MAX_VOLTAGE, MIN_VOLTAGE);
       break;
-    case 2: // tens of charge current
-      program.charge.current = GetNewValue(program.charge.current, counter, 10, MAX_CURRENT, MIN_CURRENT);
+    case 2: // tens of charge voltage
+      program.charge1.voltage = GetNewValue(program.charge1.voltage, counter, 10, MAX_VOLTAGE, MIN_VOLTAGE);
       break;
-    case 3: // thousands of charge voltage
-      program.charge.voltage = GetNewValue(program.charge.voltage, counter, 1000, MAX_VOLTAGE, MIN_VOLTAGE);
+    case 3: // thousands of charge current
+      program.charge1.current = GetNewValue(program.charge1.current, counter, 1000, MAX_CURRENT, MIN_CURRENT);
       break;
-    case 4: // hundreds of charge voltage
-      program.charge.voltage = GetNewValue(program.charge.voltage, counter, 100, MAX_VOLTAGE, MIN_VOLTAGE);
+    case 4: // hundreds of charge current
+      program.charge1.current = GetNewValue(program.charge1.current, counter, 100, MAX_CURRENT, MIN_CURRENT);
       break;
-    case 5: // tens of charge voltage
-      program.charge.voltage = GetNewValue(program.charge.voltage, counter, 10, MAX_VOLTAGE, MIN_VOLTAGE);
+    case 5: // tens of charge current
+      program.charge1.current = GetNewValue(program.charge1.current, counter, 10, MAX_CURRENT, MIN_CURRENT);
       break;
-    case 6: // thousands of discharge current
-      program.discharge.current = GetNewValue(program.discharge.current, counter, 1000, MAX_CURRENT, MIN_CURRENT);
-      break;
-    case 7: // hundreds of discharge current
-      program.discharge.current = GetNewValue(program.discharge.current, counter, 100, MAX_CURRENT, MIN_CURRENT);
-      break;
-    case 8: // tens of discharge current
-      program.discharge.current = GetNewValue(program.discharge.current, counter, 10, MAX_CURRENT, MIN_CURRENT);
-      break;
-    case 9: // thousands of discharge voltage
+    case 6: // thousands of discharge voltage
       program.discharge.voltage = GetNewValue(program.discharge.voltage, counter, 1000, MAX_VOLTAGE, MIN_VOLTAGE);
       break;
-    case 10: // hundreds of discharge voltage
+    case 7: // hundreds of discharge voltage
       program.discharge.voltage = GetNewValue(program.discharge.voltage, counter, 100, MAX_VOLTAGE, MIN_VOLTAGE);
       break;
-    case 11: // tens of discharge voltage
+    case 8: // tens of discharge voltage
       program.discharge.voltage = GetNewValue(program.discharge.voltage, counter, 10, MAX_VOLTAGE, MIN_VOLTAGE);
+      break;
+    case 9: // thousands of discharge current
+      program.discharge.current = GetNewValue(program.discharge.current, counter, 1000, MAX_CURRENT, MIN_CURRENT);
+      break;
+    case 10: // hundreds of discharge current
+      program.discharge.current = GetNewValue(program.discharge.current, counter, 100, MAX_CURRENT, MIN_CURRENT);
+      break;
+    case 11: // tens of discharge current
+      program.discharge.current = GetNewValue(program.discharge.current, counter, 10, MAX_CURRENT, MIN_CURRENT);
+      break;
+    case 12: // thousands of charge voltage
+      program.charge2.voltage = GetNewValue(program.charge2.voltage, counter, 1000, MAX_VOLTAGE, MIN_VOLTAGE);
+      break;
+    case 13: // hundreds of charge voltage
+      program.charge2.voltage = GetNewValue(program.charge2.voltage, counter, 100, MAX_VOLTAGE, MIN_VOLTAGE);
+      break;
+    case 14: // tens of charge voltage
+      program.charge2.voltage = GetNewValue(program.charge2.voltage, counter, 10, MAX_VOLTAGE, MIN_VOLTAGE);
+      break;
+    case 15: // thousands of charge current
+      program.charge2.current = GetNewValue(program.charge2.current, counter, 1000, MAX_CURRENT, MIN_CURRENT);
+      break;
+    case 16: // hundreds of charge current
+      program.charge2.current = GetNewValue(program.charge2.current, counter, 100, MAX_CURRENT, MIN_CURRENT);
+      break;
+    case 17: // tens of charge current
+      program.charge2.current = GetNewValue(program.charge2.current, counter, 10, MAX_CURRENT, MIN_CURRENT);
       break;
   }
   DrawSelection();
@@ -318,22 +354,24 @@ static void DrawMvMa(void)
 static void InitMainMode(void)
 {
   unsigned int y = 0;
-  LcdDrawText(0, y, "Mode|Charge C|0000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
+  LcdDrawText(0, y, "Mode|Stg| mV | mA", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   y += SETTINGS_FONT.char_height;
   LcdDrawText(0, y, "Chrg", &SETTINGS_FONT, BLACK_COLOR, WHITE_COLOR, NULL);
-  LcdDrawText(GET_X(SETTINGS_FONT, 4), y, "|Charge V|0000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
+  LcdDrawText(GET_X(SETTINGS_FONT, 4), y, "|Ch1|3650|1000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   y += SETTINGS_FONT.char_height;
-  LcdDrawText(0, y, "Disc|Dischr C|0000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
+  LcdDrawText(0, y, "Disc|Dis|3000|0100", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   y += SETTINGS_FONT.char_height;
-  LcdDrawText(0, y, "Test|Dischr V|0000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
+  LcdDrawText(0, y, "Test|Ch2|3400|1000", &SETTINGS_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   DrawMvMa();
   LcdDrawText(0, CHARGE_MAH_Y, "Charge    0mAh", &CURRENT_VOLTAGE_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   LcdDrawText(0, DISCHARGE_MAH_Y, "Dischr    0mAh", &CURRENT_VOLTAGE_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
   selection_mode = SELECTION_MODE_SELECT_MODE;
-  DrawChargeCurrent();
-  DrawChargeVoltage();
+  DrawCharge1Current();
+  DrawCharge1Voltage();
   DrawDischargeCurrent();
   DrawDischargeVoltage();
+  DrawCharge2Current();
+  DrawCharge2Voltage();
 }
 
 static void DrawOffsetLabels(void)
@@ -378,6 +416,7 @@ void UI_Init(void)
   cursor_state = INACTIVE;
   blue_led_state = 0;
   event_no = 0;
+  save_event = 0;
 
   LcdInit();
   InitMainMode();
@@ -426,6 +465,7 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
     switch (keyboard_status & 0x0F) {
       case KB_ENTER:
         save_offsets();
+        save_event = 1;
       case KB_EXIT:
         selected_offset = 0;
         disable_opamp1();
@@ -464,8 +504,23 @@ static void ProcessTestModeTimerEvent(signed char keyboard_status)
   }
 }
 
-static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int voltage, unsigned int current)
+static void ShowCursor(int toggle_cursor)
 {
+  if (cursor_state == INACTIVE)
+    return;
+  if (toggle_cursor)
+  {
+    cursor_state = cursor_state == ON ? OFF : ON;
+    DrawSelection();
+  }
+}
+
+static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int current, int toggle_cursor)
+{
+  ShowSetCurrent(current);
+  ShowChargeMAh();
+  ShowDischargeMAh();
+  ShowCursor(toggle_cursor);
   set_current(current_stage == CHARGE1 || current_stage == CHARGE2 ? (int)current : -(int)current);
   if (is_program_running())
   {
@@ -491,8 +546,8 @@ static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int 
       else if (selection_mode == SELECTION_MODE_EDIT_VALUE)
       {
         save_program_data();
-        selection_mode = SELECTION_MODE_SELECT_MODE;
-        SwitchSelectionMode(0);
+        save_event = 1;
+        BackToSelectMode();
       }
       break;
     case KB_EXIT_LONG:
@@ -501,17 +556,6 @@ static void ProcessMainModeTimerEvent(signed char keyboard_status, unsigned int 
       break;
     default:
       break;
-  }
-}
-
-static void ShowCursor(int toggle_cursor)
-{
-  if (cursor_state == INACTIVE)
-    return;
-  if (toggle_cursor)
-  {
-    cursor_state = cursor_state == ON ? OFF : ON;
-    DrawSelection();
   }
 }
 
@@ -530,11 +574,8 @@ static void DrawStageName(void)
     case CHARGE2:
       text = "2C";
       break;
-    case DISCHARGE1:
-      text = "1D";
-      break;
     default:
-      text = "2D";
+      text = "DI";
       break;
   }
   LcdDrawText(0, CURRENT_VOLTAGE_Y, text, &CURRENT_VOLTAGE_FONT, WHITE_COLOR, BLACK_COLOR, NULL);
@@ -542,6 +583,16 @@ static void DrawStageName(void)
 
 static void UpdateLeds(int toggle_cursor)
 {
+  if (save_event)
+  {
+    blue_led_on();
+    yellow_led_on();
+    red_led_on();
+    green_led_on();
+    save_event = 0;
+    prev_stage = current_stage + 1;
+    return;
+  }
   if (prev_stage != current_stage)
   {
     prev_stage = current_stage;
@@ -579,16 +630,12 @@ static void UpdateLeds(int toggle_cursor)
 void Process_Timer_Event(signed char keyboard_status, unsigned int voltage, unsigned int next_current)
 {
   ShowFactVoltage(voltage);
-  ShowSetCurrent(next_current);
-  ShowChargeMAh();
-  ShowDischargeMAh();
   event_no++;
   int toggle_cursor = (event_no & 3) == 3;
-  ShowCursor(toggle_cursor);
   UpdateLeds(toggle_cursor);
   if (selection_mode == SELECTION_MODE_TEST)
     ProcessTestModeTimerEvent(keyboard_status);
   else
-    ProcessMainModeTimerEvent(keyboard_status, voltage, next_current);
+    ProcessMainModeTimerEvent(keyboard_status, next_current, toggle_cursor);
   LcdUpdate();
 }

@@ -4,12 +4,9 @@
 #include "i2c1.h"
 #include "controller.h"
 
-#define FVR1_VALUE  4096
+#define FVR1_VALUE  2048
 #define FVR2_VALUE  1024
-#define DAC_LO_VREF 1024
-#define DAC_HI_VREF 1700 // 5v - 3.3v
-//#define DAC_HI_VREF 5000
-#define DAC_HI_MAX  0xFF
+#define DAC_VREF    1024
 
 volatile unsigned char delay_counter;
 
@@ -106,34 +103,48 @@ static void load_offsets(void)
     load_data(sizeof(Program), offsets, 2);
 }
 
-static unsigned long adc_get(unsigned char ain)
+static int adc_get(unsigned char pch, unsigned char nch)
 {
-    ADPCH = ain;
+    ADPCH = pch;
+    ADNCH = nch;
 
-    ADCON0bits.ADGO = 1;
-
-    while (true == ADCON0bits.ADGO)
+    ADCON2bits.ACLR = 1;
+    while (ADCON2bits.ACLR)
+      ;
+    
+    for (int i = 0; i < 64; i++)
     {
+      ADCON0bits.ADGO = 1;
+
+      while (true == ADCON0bits.ADGO)
+      {
+      }
     }
 
-    return (unsigned long)((ADRESH << 8) + ADRESL);
+    //return ADRES;
+    return ADACC / 64;
 }
 
-static unsigned int get_mv(unsigned char ain)
+static unsigned int get_mv(unsigned char pch, unsigned char nch)
 {
-    ref = adc_get(0x3E); // FVR buffer 1 - 4.096v
-    unsigned long val = adc_get(ain);
+    ref = adc_get(0x3E, 0x3B); // FVR buffer 1 - 4.096v
+    int val = adc_get(pch, nch);
+    if (val < 0)
+      val = 0;
     return (unsigned int)((unsigned long)FVR1_VALUE * val / ref);
 }
 
 unsigned int get_voltage(void)
 {
-  return get_mv(0x0B); // RB3
+  return get_mv(0x0B, 0x03); // RB3-RA3
 }
 
-static void set_dac_hi(unsigned int value)
+static void enable_r_charge_shunt(int enable)
 {
-    DAC3DATL = value & 0xFF;
+  if (enable)
+    R_CHARGE_SHUNT_ON;
+  else
+    R_CHARGE_SHUNT_OFF;
 }
 
 void set_current(int mA)
@@ -141,25 +152,27 @@ void set_current(int mA)
     set_current_value = mA;
     if (mA == 0)
     {
+        DAC2DATL = 0;
+        DAC3DATL = 0;
+        enable_r_charge_shunt(0);
         disable_opamp1();
         disable_opamp2();
-        set_dac_hi(DAC_HI_MAX);
-        DAC2DATL = 0;
         return;
     }
     if (mA > 0) // charge
     {
-        disable_opamp2();
+        enable_r_charge_shunt(0);
         DAC2DATL = 0;
-        unsigned long v = (unsigned long)mA * (unsigned long)DAC_HI_MAX / (2 * DAC_HI_VREF); // 0.47 Ohm resistor
-        set_dac_hi(DAC_HI_MAX - (unsigned int)v);
+        disable_opamp2();
+        DAC3DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_VREF); // 0.47 Ohm resistor
         enable_opamp1();
         return;
     }
+    DAC3DATL = 0;
     disable_opamp1();
     mA = -mA;
-    set_dac_hi(DAC_HI_MAX);
-    DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_LO_VREF); // 0.47 Ohm resistor
+    enable_r_charge_shunt(1);
+    DAC2DATL = (unsigned char)((unsigned long)(mA >> 1) * 255 / DAC_VREF); // 0.47 Ohm resistor
     enable_opamp2();
 }
 
@@ -197,18 +210,18 @@ signed char get_keyboard_status(void)
 /*
  * RA0
  * RA1 - OPA1OUT
- * RA2 - OPA1IN0-
- * RA3
+ * RA2 - OPA1IN0+
+ * RA3 - connected to RA2
  * RA4
- * RA5
+ * RA5 - LED4
  * RA6 - TRB
  * RA7 - BAK
  * 
- * RB0 - LED1
+ * RB0 - R_CHARGE_MOSFET
  * RB1 - OPA2OUT
  * RB2 - OPA2IN3-
  * RB3 - ANB3
- * RB4 - LED4
+ * RB4 - LED3
  * RB5
  * RB6 - ICSPCLK
  * RB7 - ICSPDAT
@@ -218,9 +231,9 @@ signed char get_keyboard_status(void)
  * RC2 - CON
  * RC3 - SCL1
  * RC4 - SDA1
- * RC5 - VREF-(DAC3)
- * RC6 - LED2
- * RC7 - LED3
+ * RC5
+ * RC6 - LED1
+ * RC7 - LED2
  * 
  */
 
@@ -232,16 +245,18 @@ static void InitPorts(void)
     
     ODCONC = 0x18;
 
+    // RA5 - out    
+    TRISA = 0xDF;
     // RB0, RB4 - out    
     TRISB = 0xEE;
     //RC3,RC4,RC6,RC7 - out
     TRISC = 0x27;
 
-    ANSELA = 0x06;
+    ANSELA = 0x0E;
     ANSELB = 0xCE;
     ANSELC = 0x20;
     
-    WPUA = 0x39; // RA0, RA3, RA4, RA5
+    WPUA = 0x11; // RA0, RA4
     WPUB = 0x20; // RB5
     WPUC = 0;
 
@@ -270,12 +285,10 @@ static void InitDAC2(void)
 
 static void InitDAC3(void)
 {
-    DAC3DATL =  0xFF;
+    DAC3DATL =  0;
 
-    //DACPSS VDD; DACNSS VREF-; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
-    DAC3CON =  0x81;
-    //DACPSS VDD; DACNSS VSS; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
-    //DAC3CON =  0x80;
+    //DACPSS FVR; DACNSS VSS; DACOE DACOUT1 and DACOUT2 are Disabled; DACEN enabled; 
+    DAC3CON =  0x88;
 }
 
 static void InitADC(void)
@@ -287,18 +300,18 @@ static void InitADC(void)
     ****************************************/
     ADCTX = 0;
 
-    ADPCH = 2; // Positive channel - RA2
+    ADPCH = 0x3B; // Positive channel - VSS
     ADNCH = 0x3B; // Negative channel - VSS
     
-    ADACQL = 0xFF;
+    ADACQL = 2;
     ADACQH = 0;
     
-    ADCAP = 0; // additional capacitor = 0
+    ADCAP =  0; // additional capacitor = 0
     ADPREL = 0; // pre-charge time
     ADPREH = 0; // pre-charge time
 
     ADCON1 = 0;
-    ADCON2 = (3 << _ADCON2_ADMD_POSITION)       /* ADMD Burst average_mode(0) */
+    ADCON2 = (1 << _ADCON2_ADMD_POSITION)       /* ADMD accumulate mode(1) */
                         |(1 << _ADCON2_ADACLR_POSITION) /* ADACLR enabled(1) */
                         |(6 << _ADCON2_ADCRS_POSITION)  /* ADCRS 0x6(6) */
                         |(0 << _ADCON2_ADPSIS_POSITION);        /* ADPSIS RES(0) */
@@ -311,7 +324,7 @@ static void InitADC(void)
 
     ADRPT = 64;
     
-    ADCON0 = 0x84;
+    ADCON0 = 0x86; // differential mode
 }
 
 static void InitOpAmp1(void)
@@ -319,8 +332,8 @@ static void InitOpAmp1(void)
     //GSEL R1 = 15R and R2 = 1R, R2/R1 = 0.07; RESON Disabled; NSS OPA1IN0-; 
     OPA1CON1 = 0x0;
 
-    //NCH OPA1IN-; PCH DAC3_OUT; 
-    OPA1CON2 = 0x26;
+    //PCH OPA1IN+; NCH DAC3_OUT;
+    OPA1CON2 = 0x62;
 
     //FMS No Connection; INTOE Disabled; PSS OPA1IN0+; 
     OPA1CON3 = 0x0;
@@ -405,8 +418,8 @@ static void InitTimer0(void)
 
 static void InitFVR(void)
 {
-   // ADFVR 4.096v; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
-    FVRCON = 0x87;
+   // ADFVR 2.048v; CDAFVR 1.024v; TSRNG Lo_range; TSEN disabled; FVREN enabled; 
+    FVRCON = 0x86;
 }
 
 void set_opamp1_offset(unsigned char offset)

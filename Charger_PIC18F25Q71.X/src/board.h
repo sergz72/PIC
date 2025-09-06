@@ -53,14 +53,17 @@
 
 #define _XTAL_FREQ 16000000
 
-#define LED_BLUE_ON LATBbits.LATB0 = 1
-#define LED_BLUE_OFF LATBbits.LATB0 = 0
-#define LED_YELLOW_ON LATCbits.LATC6 = 1
-#define LED_YELLOW_OFF LATCbits.LATC6 = 0
-#define LED_GREEN_ON LATCbits.LATC7 = 1
-#define LED_GREEN_OFF LATCbits.LATC7 = 0
-#define LED_RED_ON LATBbits.LATB4 = 1
-#define LED_RED_OFF LATBbits.LATB4 = 0
+#define LED_BLUE_ON LATAbits.LATA5 = 1
+#define LED_BLUE_OFF LATAbits.LATA5 = 0
+#define LED_RED_ON LATCbits.LATC6 = 1
+#define LED_RED_OFF LATCbits.LATC6 = 0
+#define LED_GREEN_ON LATBbits.LATB0 = 1
+#define LED_GREEN_OFF LATBbits.LATB0 = 0
+#define LED_YELLOW_ON LATBbits.LATB4 = 1
+#define LED_YELLOW_OFF LATBbits.LATB4 = 0
+
+#define R_CHARGE_SHUNT_ON LATCbits.LATC7 = 1
+#define R_CHARGE_SHUNT_OFF LATCbits.LATC7 = 0
 
 #define TIMER0_INTERRUPT_MS 16
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include "board.h"
 #include "battery_emulator.h"
+#include "controller.h"
 
 #define SIZE (LCD_HWHEIGHT * LCD_HWWIDTH / 8)
 
@@ -16,6 +17,7 @@ extern int yellow_led_state;
 static unsigned char lcd_buffer[SIZE], *lcd_buffer_p = lcd_buffer;
 static int current = 0;
 static unsigned char OPA1OFFSET = 0x80, OPA2OFFSET = 0x80;
+static unsigned char offsets[2];
 
 void delayms(unsigned int ms)
 {
@@ -61,7 +63,7 @@ void set_current(int mA)
 
 int save_data(unsigned char offset, void *p, unsigned int size)
 {
-  auto f = fopen("data.bin", "wb");
+  auto f = fopen("data.bin", "ab");
   if (f != NULL)
   {
     fseek(f, offset, SEEK_SET);
@@ -85,7 +87,9 @@ void load_data(unsigned char offset, void *p, unsigned int size)
 
 int save_offsets(void)
 {
-  return 0;
+  offsets[0] = OPA1OFFSET;
+  offsets[1] = OPA2OFFSET;
+  return save_data(sizeof(Program), offsets, 2);
 }
 
 int get_lcd_buffer_bit(int x, int y)

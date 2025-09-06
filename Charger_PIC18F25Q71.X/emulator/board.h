@@ -46,13 +46,13 @@ void enable_opamp1(void);
 void disable_opamp1(void);
 void enable_opamp2(void);
 void disable_opamp2(void);
-void blue_led_on();
-void blue_led_off();
-void yellow_led_on();
-void yellow_led_off();
-void green_led_on();
-void green_led_off();
-void red_led_on();
-void red_led_off();
+void blue_led_on(void);
+void blue_led_off(void);
+void yellow_led_on(void);
+void yellow_led_off(void);
+void green_led_on(void);
+void green_led_off(void);
+void red_led_on(void);
+void red_led_off(void);
 
 #endif
