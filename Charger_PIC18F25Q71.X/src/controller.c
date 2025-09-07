@@ -2,7 +2,7 @@
 #include "controller.h"
 
 static unsigned int current_current;
-static int cv_mode;
+static int cv_mode, discharge_stop;
 float charge_mah;
 float discharge_mah;
 
@@ -56,6 +56,7 @@ static void goto_next_stage(void)
   current_stage = next_stage;
   current_current = 0;
   cv_mode = 0;
+  discharge_stop = 0;
   switch (current_stage)
   {
     case DISCHARGE1:
@@ -79,7 +80,7 @@ static void update_charge_current(unsigned int voltage)
   if (voltage >= charge_voltage)
   {
     cv_mode = 1;
-    if (current_current <= 10)
+    if (current_current <= MIN_CURRENT + 10)
       goto_next_stage();
     else
       current_current -= 10;
@@ -92,10 +93,18 @@ static void update_charge_current(unsigned int voltage)
 
 static void update_discharge_current(unsigned int voltage)
 {
-  if (voltage <= program.discharge.voltage)
-    goto_next_stage();
-  else
-    current_current = program.discharge.current;
+  if (discharge_stop)
+  {
+    unsigned short current10 = program.discharge.current / 10;
+    if (current_current <= current10)
+      goto_next_stage();
+    else
+      current_current -= current10;
+  }
+  else if (voltage <= program.discharge.voltage)
+    discharge_stop = 1;
+  else if (current_current < program.discharge.current)
+    current_current += program.discharge.current / 10;
   discharge_mah += (float)current_current / (3600.0f * 1000.0f / TIMER_DELAY);
 }
 
@@ -117,10 +126,11 @@ void start_program(enum Modes mode)
   charge_mah = 0;
   discharge_mah = 0;
   current_current = 0;
+  discharge_stop = 0;
+  cv_mode = 0;
   switch (mode)
   {
     case CHARGE:
-      cv_mode = 0;
       charge_current = program.charge1.current;
       charge_voltage = program.charge1.voltage;
       current_stage = CHARGE1;
@@ -131,7 +141,6 @@ void start_program(enum Modes mode)
       next_stage = IDLE;
       break;
     case CAPACITY_TEST:
-      cv_mode = 0;
       current_stage = CHARGE1;
       charge_current = program.charge1.current;
       charge_voltage = program.charge1.voltage;

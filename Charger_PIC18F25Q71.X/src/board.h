@@ -25,8 +25,8 @@
 
 #define MAX_CURRENT 2000
 #define MAX_VOLTAGE 4400
-#define MIN_VOLTAGE 1200
-#define MIN_CURRENT 10
+#define MIN_VOLTAGE 900
+#define MIN_CURRENT 20
 
 #define RTC_INT_MS 50
 
